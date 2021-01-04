@@ -26,5 +26,5 @@ expr
     | Integer
     ;
 ```
-和step1一样用Visitor模式来遍历AST，生成IR，遍历的时候对neg，not和lnot等指令生成对应的汇编语句；
+和step1一样用Visitor模式来遍历AST，直接在遍历的时候对三种一元操作指令生成对应的汇编语句；
 
