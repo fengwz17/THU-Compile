@@ -22,7 +22,7 @@ public:
   };
 
   enum {
-    RuleProg = 0, RuleFunc = 1, RuleStmt = 2, RuleExpr = 3, RuleNum = 4
+    RuleProg = 0, RuleFunc = 1, RuleStmt = 2, RuleExpr = 3
   };
 
   MiniDecafParser(antlr4::TokenStream *input);
@@ -38,8 +38,7 @@ public:
   class ProgContext;
   class FuncContext;
   class StmtContext;
-  class ExprContext;
-  class NumContext; 
+  class ExprContext; 
 
   class  ProgContext : public antlr4::ParserRuleContext {
   public:
@@ -77,14 +76,25 @@ public:
   class  StmtContext : public antlr4::ParserRuleContext {
   public:
     StmtContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+   
+    StmtContext() = default;
+    void copyFrom(StmtContext *context);
+    using antlr4::ParserRuleContext::copyFrom;
+
     virtual size_t getRuleIndex() const override;
+
+   
+  };
+
+  class  RetStmtContext : public StmtContext {
+  public:
+    RetStmtContext(StmtContext *ctx);
+
     antlr4::tree::TerminalNode *Return();
     ExprContext *expr();
     antlr4::tree::TerminalNode *Semicolon();
 
-
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
   };
 
   StmtContext* stmt();
@@ -92,33 +102,78 @@ public:
   class  ExprContext : public antlr4::ParserRuleContext {
   public:
     ExprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+   
+    ExprContext() = default;
+    void copyFrom(ExprContext *context);
+    using antlr4::ParserRuleContext::copyFrom;
+
     virtual size_t getRuleIndex() const override;
+
+   
+  };
+
+  class  ParenContext : public ExprContext {
+  public:
+    ParenContext(ExprContext *ctx);
+
+    antlr4::tree::TerminalNode *Lparen();
+    ExprContext *expr();
+    antlr4::tree::TerminalNode *Rparen();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  AddSubContext : public ExprContext {
+  public:
+    AddSubContext(ExprContext *ctx);
+
+    std::vector<ExprContext *> expr();
+    ExprContext* expr(size_t i);
+    antlr4::tree::TerminalNode *Addition();
+    antlr4::tree::TerminalNode *Minus();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  UnaryContext : public ExprContext {
+  public:
+    UnaryContext(ExprContext *ctx);
+
     ExprContext *expr();
     antlr4::tree::TerminalNode *Minus();
     antlr4::tree::TerminalNode *Exclamation();
     antlr4::tree::TerminalNode *Tilde();
-    NumContext *num();
-
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
+  };
+
+  class  IntegerContext : public ExprContext {
+  public:
+    IntegerContext(ExprContext *ctx);
+
+    antlr4::tree::TerminalNode *Integer();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  MulDivContext : public ExprContext {
+  public:
+    MulDivContext(ExprContext *ctx);
+
+    std::vector<ExprContext *> expr();
+    ExprContext* expr(size_t i);
+    antlr4::tree::TerminalNode *Multiplication();
+    antlr4::tree::TerminalNode *Division();
+    antlr4::tree::TerminalNode *Modulo();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
   ExprContext* expr();
+  ExprContext* expr(int precedence);
 
-  class  NumContext : public antlr4::ParserRuleContext {
-  public:
-    NumContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *Integer();
-
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  NumContext* num();
-
+  virtual bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;
+  bool exprSempred(ExprContext *_localctx, size_t predicateIndex);
 
 private:
   static std::vector<antlr4::dfa::DFA> _decisionToDFA;

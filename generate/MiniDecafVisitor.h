@@ -23,11 +23,17 @@ public:
 
     virtual antlrcpp::Any visitFunc(MiniDecafParser::FuncContext *context) = 0;
 
-    virtual antlrcpp::Any visitStmt(MiniDecafParser::StmtContext *context) = 0;
+    virtual antlrcpp::Any visitRetStmt(MiniDecafParser::RetStmtContext *context) = 0;
 
-    virtual antlrcpp::Any visitExpr(MiniDecafParser::ExprContext *context) = 0;
+    virtual antlrcpp::Any visitParen(MiniDecafParser::ParenContext *context) = 0;
 
-    virtual antlrcpp::Any visitNum(MiniDecafParser::NumContext *context) = 0;
+    virtual antlrcpp::Any visitAddSub(MiniDecafParser::AddSubContext *context) = 0;
+
+    virtual antlrcpp::Any visitUnary(MiniDecafParser::UnaryContext *context) = 0;
+
+    virtual antlrcpp::Any visitInteger(MiniDecafParser::IntegerContext *context) = 0;
+
+    virtual antlrcpp::Any visitMulDiv(MiniDecafParser::MulDivContext *context) = 0;
 
 
 };
