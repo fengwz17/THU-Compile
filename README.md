@@ -28,3 +28,23 @@ expr
 ```
 和step1一样用Visitor模式来遍历AST，直接在遍历的时候对三种一元操作指令生成对应的汇编语句；
 
+# step3
+
+对step2进行扩展。
+
+增加加减乘除模和括号。
+
+语法上为了简单对step2扩展：
+```
+
+expr                
+    : (Minus | Exclamation | Tilde) expr    # unary
+    | expr (Multiplication | Division | Modulo) expr    # mulDiv
+    | expr (Addition | Minus) expr  # addSub
+    | Lparen expr Rparen    # paren
+    | Integer   # integer                       
+    ;
+```
+这里尝试了用语法指导书中表达式语法的写法，但是在遍历AST生成汇编语句时没有调通，故直接在step2基础上修改，这里一元操作符、加减运算、乘除运算等语法产生式的顺序保证了正确的运算优先级。
+
+遍历AST,遍历时直接生成对应的汇编代码，没有显式生成IR，但是生成的汇编代码保持add,sub等IR的语义（即对栈顶操作数pop，操作然后push的过程）。
