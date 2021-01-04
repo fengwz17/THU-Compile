@@ -112,6 +112,18 @@ public:
    
   };
 
+  class  EqualContext : public ExprContext {
+  public:
+    EqualContext(ExprContext *ctx);
+
+    std::vector<ExprContext *> expr();
+    ExprContext* expr(size_t i);
+    antlr4::tree::TerminalNode *EQ();
+    antlr4::tree::TerminalNode *NEQ();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  ParenContext : public ExprContext {
   public:
     ParenContext(ExprContext *ctx);
@@ -119,6 +131,31 @@ public:
     antlr4::tree::TerminalNode *Lparen();
     ExprContext *expr();
     antlr4::tree::TerminalNode *Rparen();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  CompareContext : public ExprContext {
+  public:
+    CompareContext(ExprContext *ctx);
+
+    std::vector<ExprContext *> expr();
+    ExprContext* expr(size_t i);
+    antlr4::tree::TerminalNode *LT();
+    antlr4::tree::TerminalNode *LE();
+    antlr4::tree::TerminalNode *GT();
+    antlr4::tree::TerminalNode *GE();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  LandContext : public ExprContext {
+  public:
+    LandContext(ExprContext *ctx);
+
+    std::vector<ExprContext *> expr();
+    ExprContext* expr(size_t i);
+    antlr4::tree::TerminalNode *LAND();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -165,6 +202,17 @@ public:
     antlr4::tree::TerminalNode *Multiplication();
     antlr4::tree::TerminalNode *Division();
     antlr4::tree::TerminalNode *Modulo();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  LorContext : public ExprContext {
+  public:
+    LorContext(ExprContext *ctx);
+
+    std::vector<ExprContext *> expr();
+    ExprContext* expr(size_t i);
+    antlr4::tree::TerminalNode *LOR();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };

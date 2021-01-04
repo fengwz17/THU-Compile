@@ -25,7 +25,13 @@ public:
 
     virtual antlrcpp::Any visitRetStmt(MiniDecafParser::RetStmtContext *context) = 0;
 
+    virtual antlrcpp::Any visitEqual(MiniDecafParser::EqualContext *context) = 0;
+
     virtual antlrcpp::Any visitParen(MiniDecafParser::ParenContext *context) = 0;
+
+    virtual antlrcpp::Any visitCompare(MiniDecafParser::CompareContext *context) = 0;
+
+    virtual antlrcpp::Any visitLand(MiniDecafParser::LandContext *context) = 0;
 
     virtual antlrcpp::Any visitAddSub(MiniDecafParser::AddSubContext *context) = 0;
 
@@ -34,6 +40,8 @@ public:
     virtual antlrcpp::Any visitInteger(MiniDecafParser::IntegerContext *context) = 0;
 
     virtual antlrcpp::Any visitMulDiv(MiniDecafParser::MulDivContext *context) = 0;
+
+    virtual antlrcpp::Any visitLor(MiniDecafParser::LorContext *context) = 0;
 
 
 };

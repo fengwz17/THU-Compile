@@ -113,3 +113,79 @@ antlrcpp::Any CodeEmission::visitMulDiv(MiniDecafParser::MulDivContext *ctx) {
     }
     return retType::UNDEF;
 }
+
+// compare node
+antlrcpp::Any CodeEmission::visitCompare(MiniDecafParser::CompareContext *ctx) {
+    retType Expr1 = visit(ctx->expr(0));
+    retType Expr2 = visit(ctx->expr(1));
+
+    if (ctx->LE()) 
+    {
+        code_ << pop2;
+        code_ << "\tsgt a0, t0, t1\n"
+              << "\txori a0, a0, 1\n";
+    } 
+    else if (ctx->LT()) 
+    {
+        code_ << pop2;
+        code_ << "\tslt a0, t0, t1\n";
+    } 
+    else if (ctx->GE()) 
+    {
+        code_ << pop2;
+        code_ << "\tslt a0, t0, t1\n"
+              << "\txori a0, a0, 1\n";
+    } 
+    else if (ctx->GT()) 
+    {
+        code_ << pop2;
+        code_ << "\tsgt a0, t0, t1\n";
+    }
+    code_ << push;
+    return retType::INT;
+}
+
+// equal node
+antlrcpp::Any CodeEmission::visitEqual(MiniDecafParser::EqualContext *ctx) {
+    retType Expr1 = visit(ctx->expr(0));
+    retType Expr2 = visit(ctx->expr(1));
+    
+    code_ << pop2 << "\tsub t0, t0, t1\n";
+    
+    if (ctx->EQ()) 
+    {
+        code_ << "\tseqz a0, t0\n";    
+    }
+    else if (ctx->NEQ()) 
+    {
+        code_ << "\tsnez a0, t0\n";
+    }
+    code_ << push;
+    return retType::INT;
+}
+
+// &&
+antlrcpp::Any CodeEmission::visitLand(MiniDecafParser::LandContext *ctx) {
+    retType Expr1 = visit(ctx->expr(0));
+    retType Expr2 = visit(ctx->expr(1));
+    
+    code_ << pop2
+          << "\tsnez t0, t0\n"
+          << "\tsnez t1, t1\n"
+          << "\tand a0, t0, t1\n"
+          << push;
+
+    return retType::INT;
+}
+
+// ||
+antlrcpp::Any CodeEmission::visitLor(MiniDecafParser::LorContext *ctx) {
+    retType Expr1 = visit(ctx->expr(0));
+    retType Expr2 = visit(ctx->expr(1));
+    
+    code_ << pop2
+          << "\tor a0, t0, t1\n"
+          << "\tsnez a0, a0\n"
+          << push;
+    return retType::INT;
+}

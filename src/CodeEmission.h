@@ -9,8 +9,15 @@ class CodeEmission : public MiniDecafBaseVisitor {
         antlrcpp::Any visitProg(MiniDecafParser::ProgContext *ctx);
         antlrcpp::Any visitRetStmt(MiniDecafParser::RetStmtContext *ctx);
         antlrcpp::Any visitUnary(MiniDecafParser::UnaryContext *ctx);
+        
         antlrcpp::Any visitAddSub(MiniDecafParser::AddSubContext *ctx);
         antlrcpp::Any visitMulDiv(MiniDecafParser::MulDivContext *ctx);
+        antlrcpp::Any visitCompare(MiniDecafParser::CompareContext *ctx);
+        antlrcpp::Any visitEqual(MiniDecafParser::EqualContext *ctx);
+        antlrcpp::Any visitLand(MiniDecafParser::LandContext *ctx);
+        antlrcpp::Any visitLor(MiniDecafParser::LorContext *ctx);
+        
+        
         antlrcpp::Any visitParen(MiniDecafParser::ParenContext *ctx);
         antlrcpp::Any visitInteger(MiniDecafParser::IntegerContext *ctx);
 
