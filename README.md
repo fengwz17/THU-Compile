@@ -93,4 +93,11 @@ expr
 
 另外，示例代码中通过记录声明语句行号的方式来处理声明覆盖的问题，而该方式当代码中多个声明在同一行时会出现问题，这里我改变了这一方式，增加了一个数据结构map<varName, varNum>，先在遍历AST时，每次遇到赋值和声明，令当前varName的varNum加1，记录每个varName最大的varNum，然后在生成汇编时，比较每个varName的当前varNum和最大varNum来处理声明覆盖。
 
+# step8
+
+增加对循环语句，以及 break/continue 的支持;
+
+注意到for要自带一个作用域，需要进行名称解析；
+
+break，continue的标号需要用一个数据结构维护，这里用一个vector记录。
 
