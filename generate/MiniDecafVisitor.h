@@ -25,11 +25,17 @@ public:
 
     virtual antlrcpp::Any visitRetStmt(MiniDecafParser::RetStmtContext *context) = 0;
 
+    virtual antlrcpp::Any visitMExpr(MiniDecafParser::MExprContext *context) = 0;
+
+    virtual antlrcpp::Any visitVarDefine(MiniDecafParser::VarDefineContext *context) = 0;
+
     virtual antlrcpp::Any visitEqual(MiniDecafParser::EqualContext *context) = 0;
 
     virtual antlrcpp::Any visitParen(MiniDecafParser::ParenContext *context) = 0;
 
     virtual antlrcpp::Any visitCompare(MiniDecafParser::CompareContext *context) = 0;
+
+    virtual antlrcpp::Any visitIdentifier(MiniDecafParser::IdentifierContext *context) = 0;
 
     virtual antlrcpp::Any visitLand(MiniDecafParser::LandContext *context) = 0;
 
@@ -42,6 +48,10 @@ public:
     virtual antlrcpp::Any visitMulDiv(MiniDecafParser::MulDivContext *context) = 0;
 
     virtual antlrcpp::Any visitLor(MiniDecafParser::LorContext *context) = 0;
+
+    virtual antlrcpp::Any visitAssign(MiniDecafParser::AssignContext *context) = 0;
+
+    virtual antlrcpp::Any visitType(MiniDecafParser::TypeContext *context) = 0;
 
 
 };

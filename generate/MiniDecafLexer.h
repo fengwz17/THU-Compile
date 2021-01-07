@@ -12,9 +12,9 @@
 class  MiniDecafLexer : public antlr4::Lexer {
 public:
   enum {
-    Int = 1, Return = 2, If = 3, Else = 4, For = 5, While = 6, Do = 7, Break = 8, 
-    Continue = 9, Main = 10, Lparen = 11, Rparen = 12, Lbrkt = 13, Rbrkt = 14, 
-    Lbrace = 15, Rbrace = 16, Comma = 17, Semicolon = 18, Question = 19, 
+    T__0 = 1, Int = 2, Return = 3, If = 4, Else = 5, For = 6, While = 7, 
+    Do = 8, Break = 9, Continue = 10, Lparen = 11, Rparen = 12, Lbrkt = 13, 
+    Rbrkt = 14, Lbrace = 15, Rbrace = 16, Comma = 17, Semicolon = 18, Question = 19, 
     Colon = 20, Minus = 21, Exclamation = 22, Tilde = 23, Addition = 24, 
     Multiplication = 25, Division = 26, Modulo = 27, LAND = 28, LOR = 29, 
     EQ = 30, NEQ = 31, LT = 32, LE = 33, GT = 34, GE = 35, Integer = 36, 

@@ -7,12 +7,18 @@ prog
     ;
 
 func
-    : 'int' 'main' '(' ')' '{' stmt '}'
+    : type Identifier '(' ')' '{' stmt* '}'
     ;
 
 stmt    
     : 'return' expr ';' 
     # retStmt
+
+    | expr ';'
+    # mExpr
+
+    | type Identifier ( '=' expr )? ';'
+    # varDefine
     ;
 
 expr                
@@ -40,6 +46,16 @@ expr
     | Lparen expr Rparen    
     # paren
 
+    | Identifier '=' expr
+    # assign
+
+    | Identifier
+    # Identifier
+
     | Integer   
     # integer                       
+    ;
+
+type
+    : 'int'
     ;

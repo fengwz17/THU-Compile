@@ -10,7 +10,6 @@ While : 'while';
 Do : 'do';
 Break : 'break';
 Continue : 'continue'; 
-Main : 'main';
 
 // operator
 Lparen : '(' ;

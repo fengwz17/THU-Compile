@@ -2,19 +2,51 @@
 
 // Visiting AST from the root node
 // return: Generated asm code
-antlrcpp::Any CodeEmission::visitProg(MiniDecafParser::ProgContext *ctx) {
+antlrcpp::Any CodeEmission::visitProg(MiniDecafParser::ProgContext *ctx, symTab& symbol_) {
+    varTable = symbol_;
     code_ << ".section .text\n"
-        << ".globl main\n"
-        << "main:\n"; 
+        << ".globl main\n";
     visitChildren(ctx);
     return code_.str();
 }
 
+// Visit Func node, no parameters
+antlrcpp::Any CodeEmission::visitFunc(MiniDecafParser::FuncContext *ctx) {
+    funcName = ctx->Identifier()->getText();
+    retState = true;
+    // Calling convention: saving ra(return address), caller fp and allocating stack memory for local variable
+    code_ << funcName << ":\n"
+          << "\tsw ra, -4(sp)\n"
+          << "\taddi sp, sp, -4\n"
+          << "\tsw fp, -4(sp)\n"
+          << "\taddi fp, sp, -4\n"
+          << "\taddi sp, fp, ";
+
+    int capacity = varTable[funcName].size();
+    code_ << -4 * capacity << "\n";
+
+    visitChildren(ctx);
+
+    // Directly return in func 
+    if (retState) {
+        code_ << "\tli a0, 0\n"
+            << "\taddi sp, fp, 4\n"
+            << "\tlw ra, (sp)\n" 
+            << "\tlw fp, -4(sp)\n"
+            << "\tret\n";
+    }
+    return retType::INT;
+}
+
+
 // Visit ReturnStmt node, son of Stmt node
 antlrcpp::Any CodeEmission::visitRetStmt(MiniDecafParser::RetStmtContext *ctx) {
     visitChildren(ctx);
-    
-    code_ << "\tret";
+    code_ << "\taddi sp, fp, 4\n"
+        << "\tlw ra, (sp)\n" 
+        << "\tlw fp, -4(sp)\n"
+        << "\tret\n";
+    retState = false;
     return retType::UNDEF;
 }
 
@@ -189,3 +221,34 @@ antlrcpp::Any CodeEmission::visitLor(MiniDecafParser::LorContext *ctx) {
           << push;
     return retType::INT;
 }
+
+
+// read var from stack
+antlrcpp::Any CodeEmission::visitIdentifier(MiniDecafParser::IdentifierContext *ctx) {
+    std::string var = ctx->Identifier()->getText();
+    code_ << "\tlw a0, " << -4 - 4 * varTable[funcName][var] << "(fp)\n" << push;
+    return retType::INT;
+}
+     
+// variable definition
+antlrcpp::Any CodeEmission::visitVarDefine(MiniDecafParser::VarDefineContext *ctx) {
+    std::string varName = ctx->Identifier()->getText();
+    if (ctx->expr())
+    {
+        visit(ctx->expr());
+        code_ << "\tsw a0, " << -4 - 4 * varTable[funcName][varName] << "(fp)\n";
+    }
+    return retType::INT;
+}
+   
+// assign
+// find varName in stack and store varTable[varName]
+antlrcpp::Any CodeEmission::visitAssign(MiniDecafParser::AssignContext *ctx) {
+    std::string varName = ctx->Identifier()->getText();
+    visit(ctx->expr());
+    code_ << "sw a0, " << -4 - 4 * varTable[funcName][varName] << "(fp)\n";
+    return retType::INT;
+}
+
+
+

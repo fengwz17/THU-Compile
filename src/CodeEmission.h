@@ -4,9 +4,13 @@
 #include <string>
 #include <iostream>
 
+
+using symTab = std::map<std::string, std::map<std::string, int>>; 
+
 class CodeEmission : public MiniDecafBaseVisitor {
     public:
-        antlrcpp::Any visitProg(MiniDecafParser::ProgContext *ctx);
+        antlrcpp::Any visitProg(MiniDecafParser::ProgContext *ctx, symTab& symbol_);
+        antlrcpp::Any visitFunc(MiniDecafParser::FuncContext *ctx);
         antlrcpp::Any visitRetStmt(MiniDecafParser::RetStmtContext *ctx);
         antlrcpp::Any visitUnary(MiniDecafParser::UnaryContext *ctx);
         
@@ -17,9 +21,12 @@ class CodeEmission : public MiniDecafBaseVisitor {
         antlrcpp::Any visitLand(MiniDecafParser::LandContext *ctx);
         antlrcpp::Any visitLor(MiniDecafParser::LorContext *ctx);
         
-        
         antlrcpp::Any visitParen(MiniDecafParser::ParenContext *ctx);
         antlrcpp::Any visitInteger(MiniDecafParser::IntegerContext *ctx);
+
+        antlrcpp::Any visitIdentifier(MiniDecafParser::IdentifierContext *ctx);
+        antlrcpp::Any visitVarDefine(MiniDecafParser::VarDefineContext *ctx);
+        antlrcpp::Any visitAssign(MiniDecafParser::AssignContext *ctx);
 
 
         
@@ -28,6 +35,11 @@ class CodeEmission : public MiniDecafBaseVisitor {
             Stringstream used to store generated codes
         */
         std::ostringstream code_;
+
+        std::string funcName;
+        symTab varTable;
+        bool retState;
+
         /* 
             Translation of IR to ASM;
 

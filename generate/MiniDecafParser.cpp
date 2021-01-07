@@ -67,9 +67,9 @@ MiniDecafParser::ProgContext* MiniDecafParser::prog() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(8);
+    setState(10);
     func();
-    setState(9);
+    setState(11);
     match(MiniDecafParser::EOF);
    
   }
@@ -88,12 +88,12 @@ MiniDecafParser::FuncContext::FuncContext(ParserRuleContext *parent, size_t invo
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* MiniDecafParser::FuncContext::Int() {
-  return getToken(MiniDecafParser::Int, 0);
+MiniDecafParser::TypeContext* MiniDecafParser::FuncContext::type() {
+  return getRuleContext<MiniDecafParser::TypeContext>(0);
 }
 
-tree::TerminalNode* MiniDecafParser::FuncContext::Main() {
-  return getToken(MiniDecafParser::Main, 0);
+tree::TerminalNode* MiniDecafParser::FuncContext::Identifier() {
+  return getToken(MiniDecafParser::Identifier, 0);
 }
 
 tree::TerminalNode* MiniDecafParser::FuncContext::Lparen() {
@@ -108,12 +108,16 @@ tree::TerminalNode* MiniDecafParser::FuncContext::Lbrace() {
   return getToken(MiniDecafParser::Lbrace, 0);
 }
 
-MiniDecafParser::StmtContext* MiniDecafParser::FuncContext::stmt() {
-  return getRuleContext<MiniDecafParser::StmtContext>(0);
-}
-
 tree::TerminalNode* MiniDecafParser::FuncContext::Rbrace() {
   return getToken(MiniDecafParser::Rbrace, 0);
+}
+
+std::vector<MiniDecafParser::StmtContext *> MiniDecafParser::FuncContext::stmt() {
+  return getRuleContexts<MiniDecafParser::StmtContext>();
+}
+
+MiniDecafParser::StmtContext* MiniDecafParser::FuncContext::stmt(size_t i) {
+  return getRuleContext<MiniDecafParser::StmtContext>(i);
 }
 
 
@@ -132,25 +136,42 @@ antlrcpp::Any MiniDecafParser::FuncContext::accept(tree::ParseTreeVisitor *visit
 MiniDecafParser::FuncContext* MiniDecafParser::func() {
   FuncContext *_localctx = _tracker.createInstance<FuncContext>(_ctx, getState());
   enterRule(_localctx, 2, MiniDecafParser::RuleFunc);
+  size_t _la = 0;
 
   auto onExit = finally([=] {
     exitRule();
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(11);
-    match(MiniDecafParser::Int);
-    setState(12);
-    match(MiniDecafParser::Main);
     setState(13);
-    match(MiniDecafParser::Lparen);
+    type();
     setState(14);
-    match(MiniDecafParser::Rparen);
+    match(MiniDecafParser::Identifier);
     setState(15);
-    match(MiniDecafParser::Lbrace);
+    match(MiniDecafParser::Lparen);
     setState(16);
-    stmt();
+    match(MiniDecafParser::Rparen);
     setState(17);
+    match(MiniDecafParser::Lbrace);
+    setState(21);
+    _errHandler->sync(this);
+    _la = _input->LA(1);
+    while ((((_la & ~ 0x3fULL) == 0) &&
+      ((1ULL << _la) & ((1ULL << MiniDecafParser::Int)
+      | (1ULL << MiniDecafParser::Return)
+      | (1ULL << MiniDecafParser::Lparen)
+      | (1ULL << MiniDecafParser::Minus)
+      | (1ULL << MiniDecafParser::Exclamation)
+      | (1ULL << MiniDecafParser::Tilde)
+      | (1ULL << MiniDecafParser::Integer)
+      | (1ULL << MiniDecafParser::Identifier))) != 0)) {
+      setState(18);
+      stmt();
+      setState(23);
+      _errHandler->sync(this);
+      _la = _input->LA(1);
+    }
+    setState(24);
     match(MiniDecafParser::Rbrace);
    
   }
@@ -201,22 +222,116 @@ antlrcpp::Any MiniDecafParser::RetStmtContext::accept(tree::ParseTreeVisitor *vi
   else
     return visitor->visitChildren(this);
 }
+//----------------- MExprContext ------------------------------------------------------------------
+
+MiniDecafParser::ExprContext* MiniDecafParser::MExprContext::expr() {
+  return getRuleContext<MiniDecafParser::ExprContext>(0);
+}
+
+tree::TerminalNode* MiniDecafParser::MExprContext::Semicolon() {
+  return getToken(MiniDecafParser::Semicolon, 0);
+}
+
+MiniDecafParser::MExprContext::MExprContext(StmtContext *ctx) { copyFrom(ctx); }
+
+
+antlrcpp::Any MiniDecafParser::MExprContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<MiniDecafVisitor*>(visitor))
+    return parserVisitor->visitMExpr(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- VarDefineContext ------------------------------------------------------------------
+
+MiniDecafParser::TypeContext* MiniDecafParser::VarDefineContext::type() {
+  return getRuleContext<MiniDecafParser::TypeContext>(0);
+}
+
+tree::TerminalNode* MiniDecafParser::VarDefineContext::Identifier() {
+  return getToken(MiniDecafParser::Identifier, 0);
+}
+
+tree::TerminalNode* MiniDecafParser::VarDefineContext::Semicolon() {
+  return getToken(MiniDecafParser::Semicolon, 0);
+}
+
+MiniDecafParser::ExprContext* MiniDecafParser::VarDefineContext::expr() {
+  return getRuleContext<MiniDecafParser::ExprContext>(0);
+}
+
+MiniDecafParser::VarDefineContext::VarDefineContext(StmtContext *ctx) { copyFrom(ctx); }
+
+
+antlrcpp::Any MiniDecafParser::VarDefineContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<MiniDecafVisitor*>(visitor))
+    return parserVisitor->visitVarDefine(this);
+  else
+    return visitor->visitChildren(this);
+}
 MiniDecafParser::StmtContext* MiniDecafParser::stmt() {
   StmtContext *_localctx = _tracker.createInstance<StmtContext>(_ctx, getState());
   enterRule(_localctx, 4, MiniDecafParser::RuleStmt);
+  size_t _la = 0;
 
   auto onExit = finally([=] {
     exitRule();
   });
   try {
-    _localctx = dynamic_cast<StmtContext *>(_tracker.createInstance<MiniDecafParser::RetStmtContext>(_localctx));
-    enterOuterAlt(_localctx, 1);
-    setState(19);
-    match(MiniDecafParser::Return);
-    setState(20);
-    expr(0);
-    setState(21);
-    match(MiniDecafParser::Semicolon);
+    setState(41);
+    _errHandler->sync(this);
+    switch (_input->LA(1)) {
+      case MiniDecafParser::Return: {
+        _localctx = dynamic_cast<StmtContext *>(_tracker.createInstance<MiniDecafParser::RetStmtContext>(_localctx));
+        enterOuterAlt(_localctx, 1);
+        setState(26);
+        match(MiniDecafParser::Return);
+        setState(27);
+        expr(0);
+        setState(28);
+        match(MiniDecafParser::Semicolon);
+        break;
+      }
+
+      case MiniDecafParser::Lparen:
+      case MiniDecafParser::Minus:
+      case MiniDecafParser::Exclamation:
+      case MiniDecafParser::Tilde:
+      case MiniDecafParser::Integer:
+      case MiniDecafParser::Identifier: {
+        _localctx = dynamic_cast<StmtContext *>(_tracker.createInstance<MiniDecafParser::MExprContext>(_localctx));
+        enterOuterAlt(_localctx, 2);
+        setState(30);
+        expr(0);
+        setState(31);
+        match(MiniDecafParser::Semicolon);
+        break;
+      }
+
+      case MiniDecafParser::Int: {
+        _localctx = dynamic_cast<StmtContext *>(_tracker.createInstance<MiniDecafParser::VarDefineContext>(_localctx));
+        enterOuterAlt(_localctx, 3);
+        setState(33);
+        type();
+        setState(34);
+        match(MiniDecafParser::Identifier);
+        setState(37);
+        _errHandler->sync(this);
+
+        _la = _input->LA(1);
+        if (_la == MiniDecafParser::T__0) {
+          setState(35);
+          match(MiniDecafParser::T__0);
+          setState(36);
+          expr(0);
+        }
+        setState(39);
+        match(MiniDecafParser::Semicolon);
+        break;
+      }
+
+    default:
+      throw NoViableAltException(this);
+    }
    
   }
   catch (RecognitionException &e) {
@@ -325,6 +440,21 @@ MiniDecafParser::CompareContext::CompareContext(ExprContext *ctx) { copyFrom(ctx
 antlrcpp::Any MiniDecafParser::CompareContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<MiniDecafVisitor*>(visitor))
     return parserVisitor->visitCompare(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- IdentifierContext ------------------------------------------------------------------
+
+tree::TerminalNode* MiniDecafParser::IdentifierContext::Identifier() {
+  return getToken(MiniDecafParser::Identifier, 0);
+}
+
+MiniDecafParser::IdentifierContext::IdentifierContext(ExprContext *ctx) { copyFrom(ctx); }
+
+
+antlrcpp::Any MiniDecafParser::IdentifierContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<MiniDecafVisitor*>(visitor))
+    return parserVisitor->visitIdentifier(this);
   else
     return visitor->visitChildren(this);
 }
@@ -474,6 +604,25 @@ antlrcpp::Any MiniDecafParser::LorContext::accept(tree::ParseTreeVisitor *visito
   else
     return visitor->visitChildren(this);
 }
+//----------------- AssignContext ------------------------------------------------------------------
+
+tree::TerminalNode* MiniDecafParser::AssignContext::Identifier() {
+  return getToken(MiniDecafParser::Identifier, 0);
+}
+
+MiniDecafParser::ExprContext* MiniDecafParser::AssignContext::expr() {
+  return getRuleContext<MiniDecafParser::ExprContext>(0);
+}
+
+MiniDecafParser::AssignContext::AssignContext(ExprContext *ctx) { copyFrom(ctx); }
+
+
+antlrcpp::Any MiniDecafParser::AssignContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<MiniDecafVisitor*>(visitor))
+    return parserVisitor->visitAssign(this);
+  else
+    return visitor->visitChildren(this);
+}
 
 MiniDecafParser::ExprContext* MiniDecafParser::expr() {
    return expr(0);
@@ -496,78 +645,96 @@ MiniDecafParser::ExprContext* MiniDecafParser::expr(int precedence) {
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(31);
+    setState(55);
     _errHandler->sync(this);
-    switch (_input->LA(1)) {
-      case MiniDecafParser::Minus:
-      case MiniDecafParser::Exclamation:
-      case MiniDecafParser::Tilde: {
-        _localctx = _tracker.createInstance<UnaryContext>(_localctx);
-        _ctx = _localctx;
-        previousContext = _localctx;
+    switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 3, _ctx)) {
+    case 1: {
+      _localctx = _tracker.createInstance<UnaryContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
 
-        setState(24);
-        _la = _input->LA(1);
-        if (!((((_la & ~ 0x3fULL) == 0) &&
-          ((1ULL << _la) & ((1ULL << MiniDecafParser::Minus)
-          | (1ULL << MiniDecafParser::Exclamation)
-          | (1ULL << MiniDecafParser::Tilde))) != 0))) {
-        _errHandler->recoverInline(this);
-        }
-        else {
-          _errHandler->reportMatch(this);
-          consume();
-        }
-        setState(25);
-        expr(9);
-        break;
+      setState(44);
+      _la = _input->LA(1);
+      if (!((((_la & ~ 0x3fULL) == 0) &&
+        ((1ULL << _la) & ((1ULL << MiniDecafParser::Minus)
+        | (1ULL << MiniDecafParser::Exclamation)
+        | (1ULL << MiniDecafParser::Tilde))) != 0))) {
+      _errHandler->recoverInline(this);
       }
-
-      case MiniDecafParser::Lparen: {
-        _localctx = _tracker.createInstance<ParenContext>(_localctx);
-        _ctx = _localctx;
-        previousContext = _localctx;
-        setState(26);
-        match(MiniDecafParser::Lparen);
-        setState(27);
-        expr(0);
-        setState(28);
-        match(MiniDecafParser::Rparen);
-        break;
+      else {
+        _errHandler->reportMatch(this);
+        consume();
       }
+      setState(45);
+      expr(11);
+      break;
+    }
 
-      case MiniDecafParser::Integer: {
-        _localctx = _tracker.createInstance<IntegerContext>(_localctx);
-        _ctx = _localctx;
-        previousContext = _localctx;
-        setState(30);
-        match(MiniDecafParser::Integer);
-        break;
-      }
+    case 2: {
+      _localctx = _tracker.createInstance<ParenContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(46);
+      match(MiniDecafParser::Lparen);
+      setState(47);
+      expr(0);
+      setState(48);
+      match(MiniDecafParser::Rparen);
+      break;
+    }
 
-    default:
-      throw NoViableAltException(this);
+    case 3: {
+      _localctx = _tracker.createInstance<AssignContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(50);
+      match(MiniDecafParser::Identifier);
+      setState(51);
+      match(MiniDecafParser::T__0);
+      setState(52);
+      expr(3);
+      break;
+    }
+
+    case 4: {
+      _localctx = _tracker.createInstance<IdentifierContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(53);
+      match(MiniDecafParser::Identifier);
+      break;
+    }
+
+    case 5: {
+      _localctx = _tracker.createInstance<IntegerContext>(_localctx);
+      _ctx = _localctx;
+      previousContext = _localctx;
+      setState(54);
+      match(MiniDecafParser::Integer);
+      break;
+    }
+
     }
     _ctx->stop = _input->LT(-1);
-    setState(53);
+    setState(77);
     _errHandler->sync(this);
-    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 2, _ctx);
+    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 5, _ctx);
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
         if (!_parseListeners.empty())
           triggerExitRuleEvent();
         previousContext = _localctx;
-        setState(51);
+        setState(75);
         _errHandler->sync(this);
-        switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 1, _ctx)) {
+        switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 4, _ctx)) {
         case 1: {
           auto newContext = _tracker.createInstance<MulDivContext>(_tracker.createInstance<ExprContext>(parentContext, parentState));
           _localctx = newContext;
           pushNewRecursionContext(newContext, startState, RuleExpr);
-          setState(33);
+          setState(57);
 
-          if (!(precpred(_ctx, 8))) throw FailedPredicateException(this, "precpred(_ctx, 8)");
-          setState(34);
+          if (!(precpred(_ctx, 10))) throw FailedPredicateException(this, "precpred(_ctx, 10)");
+          setState(58);
           _la = _input->LA(1);
           if (!((((_la & ~ 0x3fULL) == 0) &&
             ((1ULL << _la) & ((1ULL << MiniDecafParser::Multiplication)
@@ -579,8 +746,8 @@ MiniDecafParser::ExprContext* MiniDecafParser::expr(int precedence) {
             _errHandler->reportMatch(this);
             consume();
           }
-          setState(35);
-          expr(9);
+          setState(59);
+          expr(11);
           break;
         }
 
@@ -588,10 +755,10 @@ MiniDecafParser::ExprContext* MiniDecafParser::expr(int precedence) {
           auto newContext = _tracker.createInstance<CompareContext>(_tracker.createInstance<ExprContext>(parentContext, parentState));
           _localctx = newContext;
           pushNewRecursionContext(newContext, startState, RuleExpr);
-          setState(36);
+          setState(60);
 
-          if (!(precpred(_ctx, 7))) throw FailedPredicateException(this, "precpred(_ctx, 7)");
-          setState(37);
+          if (!(precpred(_ctx, 9))) throw FailedPredicateException(this, "precpred(_ctx, 9)");
+          setState(61);
           _la = _input->LA(1);
           if (!((((_la & ~ 0x3fULL) == 0) &&
             ((1ULL << _la) & ((1ULL << MiniDecafParser::LT)
@@ -604,8 +771,8 @@ MiniDecafParser::ExprContext* MiniDecafParser::expr(int precedence) {
             _errHandler->reportMatch(this);
             consume();
           }
-          setState(38);
-          expr(8);
+          setState(62);
+          expr(10);
           break;
         }
 
@@ -613,10 +780,10 @@ MiniDecafParser::ExprContext* MiniDecafParser::expr(int precedence) {
           auto newContext = _tracker.createInstance<EqualContext>(_tracker.createInstance<ExprContext>(parentContext, parentState));
           _localctx = newContext;
           pushNewRecursionContext(newContext, startState, RuleExpr);
-          setState(39);
+          setState(63);
 
-          if (!(precpred(_ctx, 6))) throw FailedPredicateException(this, "precpred(_ctx, 6)");
-          setState(40);
+          if (!(precpred(_ctx, 8))) throw FailedPredicateException(this, "precpred(_ctx, 8)");
+          setState(64);
           _la = _input->LA(1);
           if (!(_la == MiniDecafParser::EQ
 
@@ -627,8 +794,8 @@ MiniDecafParser::ExprContext* MiniDecafParser::expr(int precedence) {
             _errHandler->reportMatch(this);
             consume();
           }
-          setState(41);
-          expr(7);
+          setState(65);
+          expr(9);
           break;
         }
 
@@ -636,14 +803,14 @@ MiniDecafParser::ExprContext* MiniDecafParser::expr(int precedence) {
           auto newContext = _tracker.createInstance<LandContext>(_tracker.createInstance<ExprContext>(parentContext, parentState));
           _localctx = newContext;
           pushNewRecursionContext(newContext, startState, RuleExpr);
-          setState(42);
+          setState(66);
 
-          if (!(precpred(_ctx, 5))) throw FailedPredicateException(this, "precpred(_ctx, 5)");
+          if (!(precpred(_ctx, 7))) throw FailedPredicateException(this, "precpred(_ctx, 7)");
 
-          setState(43);
+          setState(67);
           match(MiniDecafParser::LAND);
-          setState(44);
-          expr(6);
+          setState(68);
+          expr(8);
           break;
         }
 
@@ -651,14 +818,14 @@ MiniDecafParser::ExprContext* MiniDecafParser::expr(int precedence) {
           auto newContext = _tracker.createInstance<LorContext>(_tracker.createInstance<ExprContext>(parentContext, parentState));
           _localctx = newContext;
           pushNewRecursionContext(newContext, startState, RuleExpr);
-          setState(45);
+          setState(69);
 
-          if (!(precpred(_ctx, 4))) throw FailedPredicateException(this, "precpred(_ctx, 4)");
+          if (!(precpred(_ctx, 6))) throw FailedPredicateException(this, "precpred(_ctx, 6)");
 
-          setState(46);
+          setState(70);
           match(MiniDecafParser::LOR);
-          setState(47);
-          expr(5);
+          setState(71);
+          expr(7);
           break;
         }
 
@@ -666,10 +833,10 @@ MiniDecafParser::ExprContext* MiniDecafParser::expr(int precedence) {
           auto newContext = _tracker.createInstance<AddSubContext>(_tracker.createInstance<ExprContext>(parentContext, parentState));
           _localctx = newContext;
           pushNewRecursionContext(newContext, startState, RuleExpr);
-          setState(48);
+          setState(72);
 
-          if (!(precpred(_ctx, 3))) throw FailedPredicateException(this, "precpred(_ctx, 3)");
-          setState(49);
+          if (!(precpred(_ctx, 5))) throw FailedPredicateException(this, "precpred(_ctx, 5)");
+          setState(73);
           _la = _input->LA(1);
           if (!(_la == MiniDecafParser::Minus
 
@@ -680,16 +847,16 @@ MiniDecafParser::ExprContext* MiniDecafParser::expr(int precedence) {
             _errHandler->reportMatch(this);
             consume();
           }
-          setState(50);
-          expr(4);
+          setState(74);
+          expr(6);
           break;
         }
 
         } 
       }
-      setState(55);
+      setState(79);
       _errHandler->sync(this);
-      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 2, _ctx);
+      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 5, _ctx);
     }
   }
   catch (RecognitionException &e) {
@@ -697,6 +864,51 @@ MiniDecafParser::ExprContext* MiniDecafParser::expr(int precedence) {
     _localctx->exception = std::current_exception();
     _errHandler->recover(this, _localctx->exception);
   }
+  return _localctx;
+}
+
+//----------------- TypeContext ------------------------------------------------------------------
+
+MiniDecafParser::TypeContext::TypeContext(ParserRuleContext *parent, size_t invokingState)
+  : ParserRuleContext(parent, invokingState) {
+}
+
+tree::TerminalNode* MiniDecafParser::TypeContext::Int() {
+  return getToken(MiniDecafParser::Int, 0);
+}
+
+
+size_t MiniDecafParser::TypeContext::getRuleIndex() const {
+  return MiniDecafParser::RuleType;
+}
+
+
+antlrcpp::Any MiniDecafParser::TypeContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<MiniDecafVisitor*>(visitor))
+    return parserVisitor->visitType(this);
+  else
+    return visitor->visitChildren(this);
+}
+
+MiniDecafParser::TypeContext* MiniDecafParser::type() {
+  TypeContext *_localctx = _tracker.createInstance<TypeContext>(_ctx, getState());
+  enterRule(_localctx, 8, MiniDecafParser::RuleType);
+
+  auto onExit = finally([=] {
+    exitRule();
+  });
+  try {
+    enterOuterAlt(_localctx, 1);
+    setState(80);
+    match(MiniDecafParser::Int);
+   
+  }
+  catch (RecognitionException &e) {
+    _errHandler->reportError(this, e);
+    _localctx->exception = std::current_exception();
+    _errHandler->recover(this, _localctx->exception);
+  }
+
   return _localctx;
 }
 
@@ -712,12 +924,12 @@ bool MiniDecafParser::sempred(RuleContext *context, size_t ruleIndex, size_t pre
 
 bool MiniDecafParser::exprSempred(ExprContext *_localctx, size_t predicateIndex) {
   switch (predicateIndex) {
-    case 0: return precpred(_ctx, 8);
-    case 1: return precpred(_ctx, 7);
-    case 2: return precpred(_ctx, 6);
-    case 3: return precpred(_ctx, 5);
-    case 4: return precpred(_ctx, 4);
-    case 5: return precpred(_ctx, 3);
+    case 0: return precpred(_ctx, 10);
+    case 1: return precpred(_ctx, 9);
+    case 2: return precpred(_ctx, 8);
+    case 3: return precpred(_ctx, 7);
+    case 4: return precpred(_ctx, 6);
+    case 5: return precpred(_ctx, 5);
 
   default:
     break;
@@ -734,22 +946,22 @@ atn::ATN MiniDecafParser::_atn;
 std::vector<uint16_t> MiniDecafParser::_serializedATN;
 
 std::vector<std::string> MiniDecafParser::_ruleNames = {
-  "prog", "func", "stmt", "expr"
+  "prog", "func", "stmt", "expr", "type"
 };
 
 std::vector<std::string> MiniDecafParser::_literalNames = {
-  "", "'int'", "'return'", "'if'", "'else'", "'for'", "'while'", "'do'", 
-  "'break'", "'continue'", "'main'", "'('", "')'", "'['", "']'", "'{'", 
-  "'}'", "','", "';'", "'?'", "':'", "'-'", "'!'", "'~'", "'+'", "'*'", 
-  "'/'", "'%'", "'&&'", "'||'", "'=='", "'!='", "'<'", "'<='", "'>'", "'>='"
+  "", "'='", "'int'", "'return'", "'if'", "'else'", "'for'", "'while'", 
+  "'do'", "'break'", "'continue'", "'('", "')'", "'['", "']'", "'{'", "'}'", 
+  "','", "';'", "'?'", "':'", "'-'", "'!'", "'~'", "'+'", "'*'", "'/'", 
+  "'%'", "'&&'", "'||'", "'=='", "'!='", "'<'", "'<='", "'>'", "'>='"
 };
 
 std::vector<std::string> MiniDecafParser::_symbolicNames = {
-  "", "Int", "Return", "If", "Else", "For", "While", "Do", "Break", "Continue", 
-  "Main", "Lparen", "Rparen", "Lbrkt", "Rbrkt", "Lbrace", "Rbrace", "Comma", 
-  "Semicolon", "Question", "Colon", "Minus", "Exclamation", "Tilde", "Addition", 
-  "Multiplication", "Division", "Modulo", "LAND", "LOR", "EQ", "NEQ", "LT", 
-  "LE", "GT", "GE", "Integer", "Identifier", "WS"
+  "", "", "Int", "Return", "If", "Else", "For", "While", "Do", "Break", 
+  "Continue", "Lparen", "Rparen", "Lbrkt", "Rbrkt", "Lbrace", "Rbrace", 
+  "Comma", "Semicolon", "Question", "Colon", "Minus", "Exclamation", "Tilde", 
+  "Addition", "Multiplication", "Division", "Modulo", "LAND", "LOR", "EQ", 
+  "NEQ", "LT", "LE", "GT", "GE", "Integer", "Identifier", "WS"
 };
 
 dfa::Vocabulary MiniDecafParser::_vocabulary(_literalNames, _symbolicNames);
@@ -772,45 +984,64 @@ MiniDecafParser::Initializer::Initializer() {
 
   _serializedATN = {
     0x3, 0x608b, 0xa72a, 0x8133, 0xb9ed, 0x417c, 0x3be7, 0x7786, 0x5964, 
-    0x3, 0x28, 0x3b, 0x4, 0x2, 0x9, 0x2, 0x4, 0x3, 0x9, 0x3, 0x4, 0x4, 0x9, 
-    0x4, 0x4, 0x5, 0x9, 0x5, 0x3, 0x2, 0x3, 0x2, 0x3, 0x2, 0x3, 0x3, 0x3, 
-    0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 
-    0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 
-    0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x5, 0x5, 0x22, 0xa, 0x5, 
+    0x3, 0x28, 0x55, 0x4, 0x2, 0x9, 0x2, 0x4, 0x3, 0x9, 0x3, 0x4, 0x4, 0x9, 
+    0x4, 0x4, 0x5, 0x9, 0x5, 0x4, 0x6, 0x9, 0x6, 0x3, 0x2, 0x3, 0x2, 0x3, 
+    0x2, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x3, 0x7, 
+    0x3, 0x16, 0xa, 0x3, 0xc, 0x3, 0xe, 0x3, 0x19, 0xb, 0x3, 0x3, 0x3, 0x3, 
+    0x3, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 
+    0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x3, 0x4, 0x5, 0x4, 0x28, 0xa, 0x4, 
+    0x3, 0x4, 0x3, 0x4, 0x5, 0x4, 0x2c, 0xa, 0x4, 0x3, 0x5, 0x3, 0x5, 0x3, 
+    0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 
+    0x5, 0x3, 0x5, 0x3, 0x5, 0x5, 0x5, 0x3a, 0xa, 0x5, 0x3, 0x5, 0x3, 0x5, 
     0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 
     0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 
-    0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x3, 0x5, 0x7, 0x5, 0x36, 0xa, 0x5, 0xc, 
-    0x5, 0xe, 0x5, 0x39, 0xb, 0x5, 0x3, 0x5, 0x2, 0x3, 0x8, 0x6, 0x2, 0x4, 
-    0x6, 0x8, 0x2, 0x7, 0x3, 0x2, 0x17, 0x19, 0x3, 0x2, 0x1b, 0x1d, 0x3, 
-    0x2, 0x22, 0x25, 0x3, 0x2, 0x20, 0x21, 0x4, 0x2, 0x17, 0x17, 0x1a, 0x1a, 
-    0x2, 0x3e, 0x2, 0xa, 0x3, 0x2, 0x2, 0x2, 0x4, 0xd, 0x3, 0x2, 0x2, 0x2, 
-    0x6, 0x15, 0x3, 0x2, 0x2, 0x2, 0x8, 0x21, 0x3, 0x2, 0x2, 0x2, 0xa, 0xb, 
-    0x5, 0x4, 0x3, 0x2, 0xb, 0xc, 0x7, 0x2, 0x2, 0x3, 0xc, 0x3, 0x3, 0x2, 
-    0x2, 0x2, 0xd, 0xe, 0x7, 0x3, 0x2, 0x2, 0xe, 0xf, 0x7, 0xc, 0x2, 0x2, 
-    0xf, 0x10, 0x7, 0xd, 0x2, 0x2, 0x10, 0x11, 0x7, 0xe, 0x2, 0x2, 0x11, 
-    0x12, 0x7, 0x11, 0x2, 0x2, 0x12, 0x13, 0x5, 0x6, 0x4, 0x2, 0x13, 0x14, 
-    0x7, 0x12, 0x2, 0x2, 0x14, 0x5, 0x3, 0x2, 0x2, 0x2, 0x15, 0x16, 0x7, 
-    0x4, 0x2, 0x2, 0x16, 0x17, 0x5, 0x8, 0x5, 0x2, 0x17, 0x18, 0x7, 0x14, 
-    0x2, 0x2, 0x18, 0x7, 0x3, 0x2, 0x2, 0x2, 0x19, 0x1a, 0x8, 0x5, 0x1, 
-    0x2, 0x1a, 0x1b, 0x9, 0x2, 0x2, 0x2, 0x1b, 0x22, 0x5, 0x8, 0x5, 0xb, 
-    0x1c, 0x1d, 0x7, 0xd, 0x2, 0x2, 0x1d, 0x1e, 0x5, 0x8, 0x5, 0x2, 0x1e, 
-    0x1f, 0x7, 0xe, 0x2, 0x2, 0x1f, 0x22, 0x3, 0x2, 0x2, 0x2, 0x20, 0x22, 
-    0x7, 0x26, 0x2, 0x2, 0x21, 0x19, 0x3, 0x2, 0x2, 0x2, 0x21, 0x1c, 0x3, 
-    0x2, 0x2, 0x2, 0x21, 0x20, 0x3, 0x2, 0x2, 0x2, 0x22, 0x37, 0x3, 0x2, 
-    0x2, 0x2, 0x23, 0x24, 0xc, 0xa, 0x2, 0x2, 0x24, 0x25, 0x9, 0x3, 0x2, 
-    0x2, 0x25, 0x36, 0x5, 0x8, 0x5, 0xb, 0x26, 0x27, 0xc, 0x9, 0x2, 0x2, 
-    0x27, 0x28, 0x9, 0x4, 0x2, 0x2, 0x28, 0x36, 0x5, 0x8, 0x5, 0xa, 0x29, 
-    0x2a, 0xc, 0x8, 0x2, 0x2, 0x2a, 0x2b, 0x9, 0x5, 0x2, 0x2, 0x2b, 0x36, 
-    0x5, 0x8, 0x5, 0x9, 0x2c, 0x2d, 0xc, 0x7, 0x2, 0x2, 0x2d, 0x2e, 0x7, 
-    0x1e, 0x2, 0x2, 0x2e, 0x36, 0x5, 0x8, 0x5, 0x8, 0x2f, 0x30, 0xc, 0x6, 
-    0x2, 0x2, 0x30, 0x31, 0x7, 0x1f, 0x2, 0x2, 0x31, 0x36, 0x5, 0x8, 0x5, 
-    0x7, 0x32, 0x33, 0xc, 0x5, 0x2, 0x2, 0x33, 0x34, 0x9, 0x6, 0x2, 0x2, 
-    0x34, 0x36, 0x5, 0x8, 0x5, 0x6, 0x35, 0x23, 0x3, 0x2, 0x2, 0x2, 0x35, 
-    0x26, 0x3, 0x2, 0x2, 0x2, 0x35, 0x29, 0x3, 0x2, 0x2, 0x2, 0x35, 0x2c, 
-    0x3, 0x2, 0x2, 0x2, 0x35, 0x2f, 0x3, 0x2, 0x2, 0x2, 0x35, 0x32, 0x3, 
-    0x2, 0x2, 0x2, 0x36, 0x39, 0x3, 0x2, 0x2, 0x2, 0x37, 0x35, 0x3, 0x2, 
-    0x2, 0x2, 0x37, 0x38, 0x3, 0x2, 0x2, 0x2, 0x38, 0x9, 0x3, 0x2, 0x2, 
-    0x2, 0x39, 0x37, 0x3, 0x2, 0x2, 0x2, 0x5, 0x21, 0x35, 0x37, 
+    0x3, 0x5, 0x3, 0x5, 0x7, 0x5, 0x4e, 0xa, 0x5, 0xc, 0x5, 0xe, 0x5, 0x51, 
+    0xb, 0x5, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x2, 0x3, 0x8, 0x7, 0x2, 0x4, 
+    0x6, 0x8, 0xa, 0x2, 0x7, 0x3, 0x2, 0x17, 0x19, 0x3, 0x2, 0x1b, 0x1d, 
+    0x3, 0x2, 0x22, 0x25, 0x3, 0x2, 0x20, 0x21, 0x4, 0x2, 0x17, 0x17, 0x1a, 
+    0x1a, 0x2, 0x5d, 0x2, 0xc, 0x3, 0x2, 0x2, 0x2, 0x4, 0xf, 0x3, 0x2, 0x2, 
+    0x2, 0x6, 0x2b, 0x3, 0x2, 0x2, 0x2, 0x8, 0x39, 0x3, 0x2, 0x2, 0x2, 0xa, 
+    0x52, 0x3, 0x2, 0x2, 0x2, 0xc, 0xd, 0x5, 0x4, 0x3, 0x2, 0xd, 0xe, 0x7, 
+    0x2, 0x2, 0x3, 0xe, 0x3, 0x3, 0x2, 0x2, 0x2, 0xf, 0x10, 0x5, 0xa, 0x6, 
+    0x2, 0x10, 0x11, 0x7, 0x27, 0x2, 0x2, 0x11, 0x12, 0x7, 0xd, 0x2, 0x2, 
+    0x12, 0x13, 0x7, 0xe, 0x2, 0x2, 0x13, 0x17, 0x7, 0x11, 0x2, 0x2, 0x14, 
+    0x16, 0x5, 0x6, 0x4, 0x2, 0x15, 0x14, 0x3, 0x2, 0x2, 0x2, 0x16, 0x19, 
+    0x3, 0x2, 0x2, 0x2, 0x17, 0x15, 0x3, 0x2, 0x2, 0x2, 0x17, 0x18, 0x3, 
+    0x2, 0x2, 0x2, 0x18, 0x1a, 0x3, 0x2, 0x2, 0x2, 0x19, 0x17, 0x3, 0x2, 
+    0x2, 0x2, 0x1a, 0x1b, 0x7, 0x12, 0x2, 0x2, 0x1b, 0x5, 0x3, 0x2, 0x2, 
+    0x2, 0x1c, 0x1d, 0x7, 0x5, 0x2, 0x2, 0x1d, 0x1e, 0x5, 0x8, 0x5, 0x2, 
+    0x1e, 0x1f, 0x7, 0x14, 0x2, 0x2, 0x1f, 0x2c, 0x3, 0x2, 0x2, 0x2, 0x20, 
+    0x21, 0x5, 0x8, 0x5, 0x2, 0x21, 0x22, 0x7, 0x14, 0x2, 0x2, 0x22, 0x2c, 
+    0x3, 0x2, 0x2, 0x2, 0x23, 0x24, 0x5, 0xa, 0x6, 0x2, 0x24, 0x27, 0x7, 
+    0x27, 0x2, 0x2, 0x25, 0x26, 0x7, 0x3, 0x2, 0x2, 0x26, 0x28, 0x5, 0x8, 
+    0x5, 0x2, 0x27, 0x25, 0x3, 0x2, 0x2, 0x2, 0x27, 0x28, 0x3, 0x2, 0x2, 
+    0x2, 0x28, 0x29, 0x3, 0x2, 0x2, 0x2, 0x29, 0x2a, 0x7, 0x14, 0x2, 0x2, 
+    0x2a, 0x2c, 0x3, 0x2, 0x2, 0x2, 0x2b, 0x1c, 0x3, 0x2, 0x2, 0x2, 0x2b, 
+    0x20, 0x3, 0x2, 0x2, 0x2, 0x2b, 0x23, 0x3, 0x2, 0x2, 0x2, 0x2c, 0x7, 
+    0x3, 0x2, 0x2, 0x2, 0x2d, 0x2e, 0x8, 0x5, 0x1, 0x2, 0x2e, 0x2f, 0x9, 
+    0x2, 0x2, 0x2, 0x2f, 0x3a, 0x5, 0x8, 0x5, 0xd, 0x30, 0x31, 0x7, 0xd, 
+    0x2, 0x2, 0x31, 0x32, 0x5, 0x8, 0x5, 0x2, 0x32, 0x33, 0x7, 0xe, 0x2, 
+    0x2, 0x33, 0x3a, 0x3, 0x2, 0x2, 0x2, 0x34, 0x35, 0x7, 0x27, 0x2, 0x2, 
+    0x35, 0x36, 0x7, 0x3, 0x2, 0x2, 0x36, 0x3a, 0x5, 0x8, 0x5, 0x5, 0x37, 
+    0x3a, 0x7, 0x27, 0x2, 0x2, 0x38, 0x3a, 0x7, 0x26, 0x2, 0x2, 0x39, 0x2d, 
+    0x3, 0x2, 0x2, 0x2, 0x39, 0x30, 0x3, 0x2, 0x2, 0x2, 0x39, 0x34, 0x3, 
+    0x2, 0x2, 0x2, 0x39, 0x37, 0x3, 0x2, 0x2, 0x2, 0x39, 0x38, 0x3, 0x2, 
+    0x2, 0x2, 0x3a, 0x4f, 0x3, 0x2, 0x2, 0x2, 0x3b, 0x3c, 0xc, 0xc, 0x2, 
+    0x2, 0x3c, 0x3d, 0x9, 0x3, 0x2, 0x2, 0x3d, 0x4e, 0x5, 0x8, 0x5, 0xd, 
+    0x3e, 0x3f, 0xc, 0xb, 0x2, 0x2, 0x3f, 0x40, 0x9, 0x4, 0x2, 0x2, 0x40, 
+    0x4e, 0x5, 0x8, 0x5, 0xc, 0x41, 0x42, 0xc, 0xa, 0x2, 0x2, 0x42, 0x43, 
+    0x9, 0x5, 0x2, 0x2, 0x43, 0x4e, 0x5, 0x8, 0x5, 0xb, 0x44, 0x45, 0xc, 
+    0x9, 0x2, 0x2, 0x45, 0x46, 0x7, 0x1e, 0x2, 0x2, 0x46, 0x4e, 0x5, 0x8, 
+    0x5, 0xa, 0x47, 0x48, 0xc, 0x8, 0x2, 0x2, 0x48, 0x49, 0x7, 0x1f, 0x2, 
+    0x2, 0x49, 0x4e, 0x5, 0x8, 0x5, 0x9, 0x4a, 0x4b, 0xc, 0x7, 0x2, 0x2, 
+    0x4b, 0x4c, 0x9, 0x6, 0x2, 0x2, 0x4c, 0x4e, 0x5, 0x8, 0x5, 0x8, 0x4d, 
+    0x3b, 0x3, 0x2, 0x2, 0x2, 0x4d, 0x3e, 0x3, 0x2, 0x2, 0x2, 0x4d, 0x41, 
+    0x3, 0x2, 0x2, 0x2, 0x4d, 0x44, 0x3, 0x2, 0x2, 0x2, 0x4d, 0x47, 0x3, 
+    0x2, 0x2, 0x2, 0x4d, 0x4a, 0x3, 0x2, 0x2, 0x2, 0x4e, 0x51, 0x3, 0x2, 
+    0x2, 0x2, 0x4f, 0x4d, 0x3, 0x2, 0x2, 0x2, 0x4f, 0x50, 0x3, 0x2, 0x2, 
+    0x2, 0x50, 0x9, 0x3, 0x2, 0x2, 0x2, 0x51, 0x4f, 0x3, 0x2, 0x2, 0x2, 
+    0x52, 0x53, 0x7, 0x4, 0x2, 0x2, 0x53, 0xb, 0x3, 0x2, 0x2, 0x2, 0x8, 
+    0x17, 0x27, 0x2b, 0x39, 0x4d, 0x4f, 
   };
 
   atn::ATNDeserializer deserializer;
