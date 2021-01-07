@@ -29,6 +29,8 @@ stmt
 
     | If '(' expr ')' stmt (Else stmt)?
     # ifElse 
+    | '{' blockItem* '}' 
+    # block
     ;
 
 expr                

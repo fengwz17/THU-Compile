@@ -33,6 +33,8 @@ public:
 
     virtual antlrcpp::Any visitIfElse(MiniDecafParser::IfElseContext *context) = 0;
 
+    virtual antlrcpp::Any visitBlock(MiniDecafParser::BlockContext *context) = 0;
+
     virtual antlrcpp::Any visitEqual(MiniDecafParser::EqualContext *context) = 0;
 
     virtual antlrcpp::Any visitParen(MiniDecafParser::ParenContext *context) = 0;

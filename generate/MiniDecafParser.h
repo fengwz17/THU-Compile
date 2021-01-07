@@ -153,6 +153,18 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  BlockContext : public StmtContext {
+  public:
+    BlockContext(StmtContext *ctx);
+
+    antlr4::tree::TerminalNode *Lbrace();
+    antlr4::tree::TerminalNode *Rbrace();
+    std::vector<BlockItemContext *> blockItem();
+    BlockItemContext* blockItem(size_t i);
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  IfElseContext : public StmtContext {
   public:
     IfElseContext(StmtContext *ctx);

@@ -2,7 +2,7 @@
 
 // Visiting AST from the root node
 // return: Generated asm code
-antlrcpp::Any CodeEmission::visitProg(MiniDecafParser::ProgContext *ctx, symTab& symbol_) {
+antlrcpp::Any CodeEmission::visitProg(MiniDecafParser::ProgContext *ctx, symTab& symbol_, varTab& varID2) {
     varTable = symbol_;
     label = 0;
     code_ << ".section .text\n"
@@ -15,7 +15,8 @@ antlrcpp::Any CodeEmission::visitProg(MiniDecafParser::ProgContext *ctx, symTab&
 antlrcpp::Any CodeEmission::visitFunc(MiniDecafParser::FuncContext *ctx) {
     funcName = ctx->Identifier()->getText();
     retState = true;
-
+    blockID = 0;
+    stmtID = 0;
     // Calling convention: saving ra(return address), caller fp and allocating stack memory for local variable
     code_ << funcName << ":\n"
           << "\tsw ra, -4(sp)\n"
@@ -38,6 +39,25 @@ antlrcpp::Any CodeEmission::visitFunc(MiniDecafParser::FuncContext *ctx) {
     return retType::INT;
 }
 
+
+antlrcpp::Any CodeEmission::visitBlock(MiniDecafParser::BlockContext *ctx) {
+    // When entering a new scope, update block depth
+    stmtID++;
+    funcName += "_" + std::to_string(blockID) + "_" + std::to_string(stmtID);
+    for (auto it : ctx->blockItem()) 
+    {
+        visit(it);
+    }
+    
+    stmtID--;
+    if (stmtID == 0) 
+    {
+        blockID++;
+    }
+    int pos = funcName.find('_');
+    funcName = funcName.substr(0, pos);
+    return retType::UNDEF;
+}
 
 // Visit ReturnStmt node, son of Stmt node
 antlrcpp::Any CodeEmission::visitRetStmt(MiniDecafParser::RetStmtContext *ctx) {
@@ -225,14 +245,40 @@ antlrcpp::Any CodeEmission::visitLor(MiniDecafParser::LorContext *ctx) {
 
 // read var from stack
 antlrcpp::Any CodeEmission::visitIdentifier(MiniDecafParser::IdentifierContext *ctx) {
-    std::string var = ctx->Identifier()->getText();
-    code_ << "\tlw a0, " << -4 - 4 * varTable[funcName][var] << "(fp)\n" << push;
+    std::string varName = ctx->Identifier()->getText();
+    std::string tmpFunc = funcName;
+    
+    int tmpStmt = stmtID;
+    if (varTable[funcName].count(varName + "#") > 0) 
+    {
+        if (varID2[varName] < varTable[funcName][varName + "#"]) 
+        {
+            int pos = tmpFunc.find('_');
+            tmpFunc = tmpFunc.substr(0, pos);
+            tmpStmt--;
+        }
+    }
+    for (int i = 0; i <= tmpStmt; i++) 
+    {
+        if (varTable[tmpFunc].count(varName) == 0) 
+        {
+            int pos = tmpFunc.find('_');
+            tmpFunc = tmpFunc.substr(0, pos);
+            continue;
+        }
+        code_ << "\tlw a0, " << -4 - 4 * varTable[tmpFunc][varName] << "(fp)\n"
+              << push;
+        return retType::INT;
+    }
+   
     return retType::INT;
 }
      
 // variable definition
 antlrcpp::Any CodeEmission::visitVarDefine(MiniDecafParser::VarDefineContext *ctx) {
     std::string varName = ctx->Identifier()->getText();
+    varID2[varName]++;
+
     if (ctx->expr())
     {
         visit(ctx->expr());
@@ -245,8 +291,31 @@ antlrcpp::Any CodeEmission::visitVarDefine(MiniDecafParser::VarDefineContext *ct
 // find varName in stack and store varTable[varName]
 antlrcpp::Any CodeEmission::visitAssign(MiniDecafParser::AssignContext *ctx) {
     std::string varName = ctx->Identifier()->getText();
+    varID2[varName]++;
     visit(ctx->expr());
-    code_ << "\tsw a0, " << -4 - 4 * varTable[funcName][varName] << "(fp)\n";
+    std::string tmpFunc = funcName;
+    int tmpStmt = stmtID;
+    if (varTable[funcName].count(varName + "#") > 0) 
+    {
+        if (varID2[varName] < varTable[funcName][varName + "#"]) 
+        {
+            int pos = tmpFunc.find('_');
+            tmpFunc = tmpFunc.substr(0, pos);
+            tmpStmt--;
+        }
+    }
+    for (int i = 0; i <= tmpStmt; i++) 
+    {
+        if (varTable[tmpFunc].count(varName) == 0) 
+        {
+            int pos = tmpFunc.find('_');
+            tmpFunc = tmpFunc.substr(0, pos);
+            continue;
+        }
+        code_ << "\tsw a0, " << -4 - 4 * varTable[tmpFunc][varName] << "(fp)\n";
+        return retType::INT;
+    }
+    // Load the value from stack
     return retType::INT;
 }
 

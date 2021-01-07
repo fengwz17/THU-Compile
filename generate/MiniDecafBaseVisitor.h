@@ -43,6 +43,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitBlock(MiniDecafParser::BlockContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitEqual(MiniDecafParser::EqualContext *ctx) override {
     return visitChildren(ctx);
   }

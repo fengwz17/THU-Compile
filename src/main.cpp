@@ -34,10 +34,12 @@ int main(int argc, const char* argv[]) {
     StackAlloc alloc;
     CodeEmission codeEmission;
     // std::cout << "ttt" << std::endl;
-    symTab varTable = alloc.visitProg(treeNode);
-
-    // cout << "ddd" << endl;
-    string asmCode = codeEmission.visitProg(treeNode, varTable);
+    varTab varID1;
+    varTab varID2;
+    
+    symTab varTable = alloc.visitProg(treeNode, varID1);
+    
+    string asmCode = codeEmission.visitProg(treeNode, varTable, varID2);
     
     cout << asmCode << endl;
 

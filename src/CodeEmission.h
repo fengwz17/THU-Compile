@@ -4,13 +4,14 @@
 #include <string>
 #include <iostream>
 
-
 using symTab = std::map<std::string, std::map<std::string, int>>; 
+using varTab = std::map<std::string, int>;
 
 class CodeEmission : public MiniDecafBaseVisitor {
     public:
-        antlrcpp::Any visitProg(MiniDecafParser::ProgContext *ctx, symTab& symbol_);
+        antlrcpp::Any visitProg(MiniDecafParser::ProgContext *ctx, symTab& symbol_, varTab& varID);
         antlrcpp::Any visitFunc(MiniDecafParser::FuncContext *ctx);
+        antlrcpp::Any visitBlock(MiniDecafParser::BlockContext *ctx);
         antlrcpp::Any visitRetStmt(MiniDecafParser::RetStmtContext *ctx);
         antlrcpp::Any visitUnary(MiniDecafParser::UnaryContext *ctx);
         
@@ -39,8 +40,10 @@ class CodeEmission : public MiniDecafBaseVisitor {
 
         std::string funcName;
         symTab varTable;
+        varTab varID2;
         bool retState;
         int label;
+        int blockID, stmtID;
 
         /* 
             Translation of IR to ASM;
@@ -48,7 +51,7 @@ class CodeEmission : public MiniDecafBaseVisitor {
             Support IR: push, pop
         */
         const char* push = "\taddi sp, sp, -4\n"
-                        "\tsw a0, (sp)\n";
+                        "\tsw a0, 0(sp)\n";
 
         const char* pop = "\tlw t0, 0(sp)\n"
                         "\taddi sp, sp, 4\n";
