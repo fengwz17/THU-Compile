@@ -4,6 +4,7 @@
 // return: Generated asm code
 antlrcpp::Any CodeEmission::visitProg(MiniDecafParser::ProgContext *ctx, symTab& symbol_) {
     varTable = symbol_;
+    label = 0;
     code_ << ".section .text\n"
         << ".globl main\n";
     visitChildren(ctx);
@@ -245,8 +246,50 @@ antlrcpp::Any CodeEmission::visitVarDefine(MiniDecafParser::VarDefineContext *ct
 antlrcpp::Any CodeEmission::visitAssign(MiniDecafParser::AssignContext *ctx) {
     std::string varName = ctx->Identifier()->getText();
     visit(ctx->expr());
-    code_ << "sw a0, " << -4 - 4 * varTable[funcName][varName] << "(fp)\n";
+    code_ << "\tsw a0, " << -4 - 4 * varTable[funcName][varName] << "(fp)\n";
     return retType::INT;
+}
+
+// if else
+antlrcpp::Any CodeEmission::visitIfElse(MiniDecafParser::IfElseContext *ctx) {
+    visit(ctx->expr());
+    
+    // only if
+    if (!(ctx->Else())) 
+    {
+        int brEnd = label++;
+        code_ << "\tbeqz a0, .L" << brEnd << "\n";
+        visit(ctx->stmt(0));
+        code_ << ".L" << brEnd << ":\n";
+    }
+
+    // if-else
+    else
+    {
+        int brElse = label++;
+        int brEnd = label++;
+        code_ << "\tbeqz a0, .L" << brElse << "\n";
+        visit(ctx->stmt(0));
+        code_ << "\tj .L" << brEnd << "\n";
+        code_ << ".L" << brElse << ":\n";
+        visit(ctx->stmt(1));
+        code_ << ".L" << brEnd << ":\n";
+    } 
+    
+    return retType::UNDEF;
+}
+
+antlrcpp::Any CodeEmission::visitCondExpr(MiniDecafParser::CondExprContext *ctx) {
+    visit(ctx->expr(0));
+    int brElse = label++;
+    int brEnd = label++;
+    code_ << "\tbeqz a0, .L_" << brElse << "\n";
+    visit(ctx->expr(1));
+    code_ << "\tj .L_" << brEnd << "\n";
+    code_ << ".L_" << brElse << ":\n";
+    visit(ctx->expr(2));
+    code_ << ".L_" << brEnd << ":\n";
+    return retType::UNDEF;
 }
 
 

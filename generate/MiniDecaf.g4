@@ -7,7 +7,17 @@ prog
     ;
 
 func
-    : type Identifier '(' ')' '{' stmt* '}'
+    : type Identifier '(' ')' '{' blockItem* '}'
+    ;
+
+blockItem
+    : stmt
+    | declaration
+    ;
+
+declaration
+    : type Identifier ('=' expr)? ';'
+    # varDefine
     ;
 
 stmt    
@@ -15,10 +25,10 @@ stmt
     # retStmt
 
     | expr ';'
-    # mExpr
+    # exprStmt
 
-    | type Identifier ( '=' expr )? ';'
-    # varDefine
+    | If '(' expr ')' stmt (Else stmt)?
+    # ifElse 
     ;
 
 expr                
@@ -39,9 +49,12 @@ expr
 
     | expr (LOR) expr
     # lor
-    
+
     | expr (Addition | Minus) expr  
     # addSub
+    
+    | expr '?' expr ':' expr
+    # condExpr
 
     | Lparen expr Rparen    
     # paren

@@ -23,15 +23,23 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitRetStmt(MiniDecafParser::RetStmtContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitMExpr(MiniDecafParser::MExprContext *ctx) override {
+  virtual antlrcpp::Any visitBlockItem(MiniDecafParser::BlockItemContext *ctx) override {
     return visitChildren(ctx);
   }
 
   virtual antlrcpp::Any visitVarDefine(MiniDecafParser::VarDefineContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitRetStmt(MiniDecafParser::RetStmtContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitExprStmt(MiniDecafParser::ExprStmtContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitIfElse(MiniDecafParser::IfElseContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -48,6 +56,10 @@ public:
   }
 
   virtual antlrcpp::Any visitIdentifier(MiniDecafParser::IdentifierContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitCondExpr(MiniDecafParser::CondExprContext *ctx) override {
     return visitChildren(ctx);
   }
 

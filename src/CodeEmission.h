@@ -28,7 +28,8 @@ class CodeEmission : public MiniDecafBaseVisitor {
         antlrcpp::Any visitVarDefine(MiniDecafParser::VarDefineContext *ctx);
         antlrcpp::Any visitAssign(MiniDecafParser::AssignContext *ctx);
 
-
+        antlrcpp::Any visitIfElse(MiniDecafParser::IfElseContext *ctx);
+        antlrcpp::Any visitCondExpr(MiniDecafParser::CondExprContext *ctx);
         
     private:
         /*
@@ -39,6 +40,7 @@ class CodeEmission : public MiniDecafBaseVisitor {
         std::string funcName;
         symTab varTable;
         bool retState;
+        int label;
 
         /* 
             Translation of IR to ASM;
@@ -56,7 +58,7 @@ class CodeEmission : public MiniDecafBaseVisitor {
                         "\taddi sp, sp, 8\n";
 
         const char* ret = "\taddi sp, fp, 4\n"
-                        "\tlw ra, (sp)\n" 
+                        "\tlw ra, 0(sp)\n" 
                         "\tlw fp, -4(sp)\n"
                         "\tret\n";
 
