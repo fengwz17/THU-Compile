@@ -14,6 +14,7 @@ antlrcpp::Any CodeEmission::visitProg(MiniDecafParser::ProgContext *ctx, symTab&
 antlrcpp::Any CodeEmission::visitFunc(MiniDecafParser::FuncContext *ctx) {
     funcName = ctx->Identifier()->getText();
     retState = true;
+
     // Calling convention: saving ra(return address), caller fp and allocating stack memory for local variable
     code_ << funcName << ":\n"
           << "\tsw ra, -4(sp)\n"
@@ -28,12 +29,10 @@ antlrcpp::Any CodeEmission::visitFunc(MiniDecafParser::FuncContext *ctx) {
     visitChildren(ctx);
 
     // Directly return in func 
-    if (retState) {
+    if (retState) 
+    {
         code_ << "\tli a0, 0\n"
-            << "\taddi sp, fp, 4\n"
-            << "\tlw ra, (sp)\n" 
-            << "\tlw fp, -4(sp)\n"
-            << "\tret\n";
+              << ret;
     }
     return retType::INT;
 }
@@ -42,10 +41,7 @@ antlrcpp::Any CodeEmission::visitFunc(MiniDecafParser::FuncContext *ctx) {
 // Visit ReturnStmt node, son of Stmt node
 antlrcpp::Any CodeEmission::visitRetStmt(MiniDecafParser::RetStmtContext *ctx) {
     visitChildren(ctx);
-    code_ << "\taddi sp, fp, 4\n"
-        << "\tlw ra, (sp)\n" 
-        << "\tlw fp, -4(sp)\n"
-        << "\tret\n";
+    code_ << ret;
     retState = false;
     return retType::UNDEF;
 }
@@ -55,13 +51,14 @@ antlrcpp::Any CodeEmission::visitRetStmt(MiniDecafParser::RetStmtContext *ctx) {
 antlrcpp::Any CodeEmission::visitInteger(MiniDecafParser::IntegerContext *ctx) {
     std::string strLiteral = ctx->Integer()->getText();
     long long numLiteral = std::stoll(strLiteral);
-    if (numLiteral > INT32_MAX) {
+    if (numLiteral > INT32_MAX) 
+    {
         std::cerr << "line " << ctx->start->getLine() << ": "
                   << "[ERROR] Constant out of INT range.\n";
         exit(1);
     }
     
-    code_ << "\tli a0, " << ctx->Integer()->getText() << "\n"
+    code_ << "\tli a0, " << strLiteral << "\n"
           << push;
 
     return retType::INT;
@@ -79,7 +76,8 @@ antlrcpp::Any CodeEmission::visitUnary(MiniDecafParser::UnaryContext *ctx) {
     } 
 
     // !
-    else if(ctx->Exclamation()) {
+    else if(ctx->Exclamation()) 
+    {
         code_ << pop
             << "\tseqz a0, t0\n"
             << push; 
@@ -87,7 +85,8 @@ antlrcpp::Any CodeEmission::visitUnary(MiniDecafParser::UnaryContext *ctx) {
     } 
     
     // ~
-    else if(ctx->Tilde()) {
+    else if(ctx->Tilde()) 
+    {
         code_ << pop
             << "\tnot a0, t0\n"
             << push;

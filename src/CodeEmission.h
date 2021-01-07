@@ -55,6 +55,11 @@ class CodeEmission : public MiniDecafBaseVisitor {
                         "\tlw t1, 0(sp)\n"
                         "\taddi sp, sp, 8\n";
 
+        const char* ret = "\taddi sp, fp, 4\n"
+                        "\tlw ra, (sp)\n" 
+                        "\tlw fp, -4(sp)\n"
+                        "\tret\n";
+
     
         /*
             Specify return type of each operation
