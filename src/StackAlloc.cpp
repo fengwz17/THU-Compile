@@ -23,15 +23,15 @@ antlrcpp::Any StackAlloc::visitFunc(MiniDecafParser::FuncContext *ctx) {
         std::cerr << "[ERROR] Function Redifined" << curFunc << "\n";
         exit(1);
     }
-    // std::cout << "dddddddd" << std::endl;
+    
     visitChildren(ctx);
-    // std::cout << "ddd" << std::endl;
+
     return retType::INT;
 }
 
 antlrcpp::Any StackAlloc::visitBlock(MiniDecafParser::BlockContext *ctx) {
     stmtID++;
-    curFunc += "_" + std::to_string(blockID) + "_" + std::to_string(stmtID);
+    curFunc += "_" + std::to_string(blockID) + std::to_string(stmtID);
     for (auto it : ctx->blockItem()) 
     {
         visit(it);
@@ -42,7 +42,7 @@ antlrcpp::Any StackAlloc::visitBlock(MiniDecafParser::BlockContext *ctx) {
     {
         blockID++;
     }
-    int pos = curFunc.find('_');
+    int pos = curFunc.rfind('_');
     curFunc = curFunc.substr(0, pos);
     return retType::UNDEF;
 }
@@ -62,8 +62,13 @@ antlrcpp::Any StackAlloc::visitVarDefine(MiniDecafParser::VarDefineContext *ctx)
     if (varTable[curFunc].count(varName + "#") > 0) 
     {
         varTable[curFunc][varName + "#"] =  varID[varName];
+        // varTable[curFunc][varName + "#"] = ctx->start->getLine();
     }
+    
+    // std::cout << "varTable: " << curFunc << " " << varName << " " << varTable[curFunc][varName] << '\n';
     varTable[curFunc][varName] = offset++;
+    // std::cout << "varTable: " << curFunc << " " << varName << " " << varTable[curFunc][varName] << '\n';
+
     return retType::INT;
 }
 
@@ -75,10 +80,11 @@ antlrcpp::Any StackAlloc::visitIdentifier(MiniDecafParser::IdentifierContext *ct
     {
         if (varTable[tmp].count(varName) == 0) 
         {
-            int pos = tmp.find('_');
+            int pos = tmp.rfind('_');
             tmp = tmp.substr(0, pos);
             continue;
         }
+    
         if (varTable[curFunc].count(varName) == 0) 
         {
             varTable[curFunc][varName + "#"] = 0;
@@ -87,15 +93,6 @@ antlrcpp::Any StackAlloc::visitIdentifier(MiniDecafParser::IdentifierContext *ct
     }
     std::cerr << "[ERROR] Using: Variable " << varName << " have not been defined\n";
     exit(1);
-
-    // // error: var used without difination
-    // if (varTable[curFunc].count(varName) == 0) 
-    // {
-    //     std::cerr << "[ERROR] Using: Variable " << varName << " have not been defined\n";
-    //     exit(1);
-    // } 
-
-    // return retType::INT;
 }
 
 antlrcpp::Any StackAlloc::visitAssign(MiniDecafParser::AssignContext *ctx) {
@@ -109,7 +106,7 @@ antlrcpp::Any StackAlloc::visitAssign(MiniDecafParser::AssignContext *ctx) {
     {
         if (varTable[tmpFunc].count(varName) == 0) 
         {
-            int pos = tmpFunc.find('_');
+            int pos = tmpFunc.rfind('_');
             tmpFunc = tmpFunc.substr(0, pos);
             continue;
         }
@@ -121,13 +118,18 @@ antlrcpp::Any StackAlloc::visitAssign(MiniDecafParser::AssignContext *ctx) {
     }
     std::cerr << "[ERROR] Assign: Variable " << varName << " have not been defined\n";
     exit(1);
-
-    // // error: var used without assignment
-    // if (varTable[curFunc].count(varName) == 0) 
-    // {
-    //     std::cerr << "[ERROR] Assign: Variable " << varName << " have not been defined\n";
-    //     exit(1);
-    // }
-    // return retType::INT;
 }
 
+antlrcpp::Any StackAlloc::visitForLoop(MiniDecafParser::ForLoopContext *ctx) {
+    stmtID++;
+    curFunc += "_" + std::to_string(blockID) + std::to_string(stmtID);
+    visitChildren(ctx);
+    stmtID--;
+    if (stmtID == 0) 
+    {
+        blockID++;
+    }
+    int pos = curFunc.rfind('_');
+    curFunc = curFunc.substr(0, pos);
+    return retType::UNDEF;
+}

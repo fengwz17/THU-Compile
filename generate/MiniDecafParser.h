@@ -84,6 +84,7 @@ public:
     virtual size_t getRuleIndex() const override;
     StmtContext *stmt();
     DeclarationContext *declaration();
+    antlr4::tree::TerminalNode *Semicolon();
 
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -111,7 +112,6 @@ public:
 
     TypeContext *type();
     antlr4::tree::TerminalNode *Identifier();
-    antlr4::tree::TerminalNode *Semicolon();
     ExprContext *expr();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -153,6 +153,54 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  WhileLoopContext : public StmtContext {
+  public:
+    WhileLoopContext(StmtContext *ctx);
+
+    antlr4::tree::TerminalNode *While();
+    antlr4::tree::TerminalNode *Lparen();
+    ExprContext *expr();
+    antlr4::tree::TerminalNode *Rparen();
+    StmtContext *stmt();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  DoWhileContext : public StmtContext {
+  public:
+    DoWhileContext(StmtContext *ctx);
+
+    antlr4::tree::TerminalNode *Do();
+    StmtContext *stmt();
+    antlr4::tree::TerminalNode *While();
+    antlr4::tree::TerminalNode *Lparen();
+    ExprContext *expr();
+    antlr4::tree::TerminalNode *Rparen();
+    antlr4::tree::TerminalNode *Semicolon();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  BreakContext : public StmtContext {
+  public:
+    BreakContext(StmtContext *ctx);
+
+    antlr4::tree::TerminalNode *Break();
+    antlr4::tree::TerminalNode *Semicolon();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  ContinueContext : public StmtContext {
+  public:
+    ContinueContext(StmtContext *ctx);
+
+    antlr4::tree::TerminalNode *Continue();
+    antlr4::tree::TerminalNode *Semicolon();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  BlockContext : public StmtContext {
   public:
     BlockContext(StmtContext *ctx);
@@ -176,6 +224,32 @@ public:
     std::vector<StmtContext *> stmt();
     StmtContext* stmt(size_t i);
     antlr4::tree::TerminalNode *Else();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  ForLoopContext : public StmtContext {
+  public:
+    ForLoopContext(StmtContext *ctx);
+
+    antlr4::tree::TerminalNode *For();
+    antlr4::tree::TerminalNode *Lparen();
+    std::vector<antlr4::tree::TerminalNode *> Semicolon();
+    antlr4::tree::TerminalNode* Semicolon(size_t i);
+    antlr4::tree::TerminalNode *Rparen();
+    StmtContext *stmt();
+    DeclarationContext *declaration();
+    std::vector<ExprContext *> expr();
+    ExprContext* expr(size_t i);
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  SemicolonContext : public StmtContext {
+  public:
+    SemicolonContext(StmtContext *ctx);
+
+    antlr4::tree::TerminalNode *Semicolon();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -207,6 +281,15 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  IdentifierContext : public ExprContext {
+  public:
+    IdentifierContext(ExprContext *ctx);
+
+    antlr4::tree::TerminalNode *Identifier();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  ParenContext : public ExprContext {
   public:
     ParenContext(ExprContext *ctx);
@@ -228,15 +311,6 @@ public:
     antlr4::tree::TerminalNode *LE();
     antlr4::tree::TerminalNode *GT();
     antlr4::tree::TerminalNode *GE();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  IdentifierContext : public ExprContext {
-  public:
-    IdentifierContext(ExprContext *ctx);
-
-    antlr4::tree::TerminalNode *Identifier();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };

@@ -35,13 +35,25 @@ public:
 
     virtual antlrcpp::Any visitBlock(MiniDecafParser::BlockContext *context) = 0;
 
+    virtual antlrcpp::Any visitForLoop(MiniDecafParser::ForLoopContext *context) = 0;
+
+    virtual antlrcpp::Any visitWhileLoop(MiniDecafParser::WhileLoopContext *context) = 0;
+
+    virtual antlrcpp::Any visitDoWhile(MiniDecafParser::DoWhileContext *context) = 0;
+
+    virtual antlrcpp::Any visitBreak(MiniDecafParser::BreakContext *context) = 0;
+
+    virtual antlrcpp::Any visitContinue(MiniDecafParser::ContinueContext *context) = 0;
+
+    virtual antlrcpp::Any visitSemicolon(MiniDecafParser::SemicolonContext *context) = 0;
+
     virtual antlrcpp::Any visitEqual(MiniDecafParser::EqualContext *context) = 0;
+
+    virtual antlrcpp::Any visitIdentifier(MiniDecafParser::IdentifierContext *context) = 0;
 
     virtual antlrcpp::Any visitParen(MiniDecafParser::ParenContext *context) = 0;
 
     virtual antlrcpp::Any visitCompare(MiniDecafParser::CompareContext *context) = 0;
-
-    virtual antlrcpp::Any visitIdentifier(MiniDecafParser::IdentifierContext *context) = 0;
 
     virtual antlrcpp::Any visitCondExpr(MiniDecafParser::CondExprContext *context) = 0;
 

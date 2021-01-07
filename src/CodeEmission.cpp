@@ -2,7 +2,7 @@
 
 // Visiting AST from the root node
 // return: Generated asm code
-antlrcpp::Any CodeEmission::visitProg(MiniDecafParser::ProgContext *ctx, symTab& symbol_, varTab& varID2) {
+antlrcpp::Any CodeEmission::visitProg(MiniDecafParser::ProgContext *ctx, symTab& symbol_, varTab& varID) {
     varTable = symbol_;
     label = 0;
     code_ << ".section .text\n"
@@ -13,19 +13,19 @@ antlrcpp::Any CodeEmission::visitProg(MiniDecafParser::ProgContext *ctx, symTab&
 
 // Visit Func node, no parameters
 antlrcpp::Any CodeEmission::visitFunc(MiniDecafParser::FuncContext *ctx) {
-    funcName = ctx->Identifier()->getText();
+    curFunc = ctx->Identifier()->getText();
     retState = true;
     blockID = 0;
     stmtID = 0;
     // Calling convention: saving ra(return address), caller fp and allocating stack memory for local variable
-    code_ << funcName << ":\n"
+    code_ << curFunc << ":\n"
           << "\tsw ra, -4(sp)\n"
           << "\taddi sp, sp, -4\n"
           << "\tsw fp, -4(sp)\n"
           << "\taddi fp, sp, -4\n"
           << "\taddi sp, fp, ";
 
-    int capacity = varTable[funcName].size();
+    int capacity = varTable[curFunc].size();
     code_ << -4 * capacity << "\n";
 
     visitChildren(ctx);
@@ -39,11 +39,9 @@ antlrcpp::Any CodeEmission::visitFunc(MiniDecafParser::FuncContext *ctx) {
     return retType::INT;
 }
 
-
 antlrcpp::Any CodeEmission::visitBlock(MiniDecafParser::BlockContext *ctx) {
-    // When entering a new scope, update block depth
     stmtID++;
-    funcName += "_" + std::to_string(blockID) + "_" + std::to_string(stmtID);
+    curFunc += "_" + std::to_string(blockID) + std::to_string(stmtID);
     for (auto it : ctx->blockItem()) 
     {
         visit(it);
@@ -54,8 +52,8 @@ antlrcpp::Any CodeEmission::visitBlock(MiniDecafParser::BlockContext *ctx) {
     {
         blockID++;
     }
-    int pos = funcName.find('_');
-    funcName = funcName.substr(0, pos);
+    int pos = curFunc.rfind('_');
+    curFunc = curFunc.substr(0, pos);
     return retType::UNDEF;
 }
 
@@ -242,64 +240,68 @@ antlrcpp::Any CodeEmission::visitLor(MiniDecafParser::LorContext *ctx) {
     return retType::INT;
 }
 
+// variable definition
+antlrcpp::Any CodeEmission::visitVarDefine(MiniDecafParser::VarDefineContext *ctx) {
+    std::string varName = ctx->Identifier()->getText();
+    varID[varName]++;
+
+    if (ctx->expr())
+    {
+        visit(ctx->expr());
+        code_ << "\tsw a0, " << -4 - 4 * varTable[curFunc][varName] << "(fp)\n";
+    }
+    return retType::INT;
+}
 
 // read var from stack
 antlrcpp::Any CodeEmission::visitIdentifier(MiniDecafParser::IdentifierContext *ctx) {
     std::string varName = ctx->Identifier()->getText();
-    std::string tmpFunc = funcName;
+    std::string tmpFunc = curFunc;
     
     int tmpStmt = stmtID;
-    if (varTable[funcName].count(varName + "#") > 0) 
+
+    if (varTable[curFunc].count(varName + "#") > 0) 
     {
-        if (varID2[varName] < varTable[funcName][varName + "#"]) 
+        if (varID[varName] < varTable[curFunc][varName + "#"]) 
         {
-            int pos = tmpFunc.find('_');
+            int pos = tmpFunc.rfind('_');
             tmpFunc = tmpFunc.substr(0, pos);
             tmpStmt--;
         }
     }
+    
     for (int i = 0; i <= tmpStmt; i++) 
-    {
+    {   
         if (varTable[tmpFunc].count(varName) == 0) 
         {
-            int pos = tmpFunc.find('_');
+            int pos = tmpFunc.rfind('_');
             tmpFunc = tmpFunc.substr(0, pos);
             continue;
         }
+
+        // std::cout << "tmp varTable: " << tmpFunc << " " << varName << " " << varTable[tmpFunc][varName] << '\n';
         code_ << "\tlw a0, " << -4 - 4 * varTable[tmpFunc][varName] << "(fp)\n"
               << push;
+        // std::cout << "tmp varTable: " << tmpFunc << " " << varName << " " << varTable[tmpFunc][varName] << '\n';
         return retType::INT;
     }
    
     return retType::INT;
 }
-     
-// variable definition
-antlrcpp::Any CodeEmission::visitVarDefine(MiniDecafParser::VarDefineContext *ctx) {
-    std::string varName = ctx->Identifier()->getText();
-    varID2[varName]++;
 
-    if (ctx->expr())
-    {
-        visit(ctx->expr());
-        code_ << "\tsw a0, " << -4 - 4 * varTable[funcName][varName] << "(fp)\n";
-    }
-    return retType::INT;
-}
-   
 // assign
 // find varName in stack and store varTable[varName]
 antlrcpp::Any CodeEmission::visitAssign(MiniDecafParser::AssignContext *ctx) {
     std::string varName = ctx->Identifier()->getText();
-    varID2[varName]++;
+    varID[varName]++;
     visit(ctx->expr());
-    std::string tmpFunc = funcName;
+    std::string tmpFunc = curFunc;
     int tmpStmt = stmtID;
-    if (varTable[funcName].count(varName + "#") > 0) 
+    if (varTable[curFunc].count(varName + "#") > 0) 
     {
-        if (varID2[varName] < varTable[funcName][varName + "#"]) 
+        if (varID[varName] < varTable[curFunc][varName + "#"]) 
         {
-            int pos = tmpFunc.find('_');
+            int pos = tmpFunc.rfind('_');
             tmpFunc = tmpFunc.substr(0, pos);
             tmpStmt--;
         }
@@ -308,7 +310,7 @@ antlrcpp::Any CodeEmission::visitAssign(MiniDecafParser::AssignContext *ctx) {
     {
         if (varTable[tmpFunc].count(varName) == 0) 
         {
-            int pos = tmpFunc.find('_');
+            int pos = tmpFunc.rfind('_');
             tmpFunc = tmpFunc.substr(0, pos);
             continue;
         }
@@ -352,14 +354,119 @@ antlrcpp::Any CodeEmission::visitCondExpr(MiniDecafParser::CondExprContext *ctx)
     visit(ctx->expr(0));
     int brElse = label++;
     int brEnd = label++;
-    code_ << "\tbeqz a0, .L_" << brElse << "\n";
+
+    code_ << "\tbeqz a0, .L" << brElse << "\n";
+
     visit(ctx->expr(1));
-    code_ << "\tj .L_" << brEnd << "\n";
-    code_ << ".L_" << brElse << ":\n";
+
+    code_ << "\tj .L" << brEnd << "\n";
+    code_ << ".L" << brElse << ":\n";
+    
     visit(ctx->expr(2));
-    code_ << ".L_" << brEnd << ":\n";
+    code_ << ".L" << brEnd << ":\n";
     return retType::UNDEF;
 }
 
+// for 
+antlrcpp::Any CodeEmission::visitForLoop(MiniDecafParser::ForLoopContext *ctx) {
+    stmtID++;
+    curFunc += "_" + std::to_string(blockID) + std::to_string(stmtID);
+    int startBranch = label++;
+    int endBranch = label++;
+    int continueBranch = label++;
 
+    breakTarget.push_back(endBranch);
+    continueTarget.push_back(continueBranch);
 
+    int exprNum = -1;
+
+    // for (condition) <stmt>
+    // condition: (<decl | expr>; <expr>; <expr> )
+
+    if (ctx->declaration()) 
+    {
+        visit(ctx->declaration());
+    } 
+    else if (ctx->expr(0)) 
+    {
+        visit(ctx->expr(0));
+        exprNum = 0;
+    }
+
+    code_ << ".L" << startBranch << ":\n";
+    if (ctx->expr(exprNum + 1)) 
+    {
+        visit(ctx->expr(exprNum + 1));
+        code_ << "\tbeqz a0, .L" << endBranch << "\n";
+    } 
+    visit(ctx->stmt());
+    code_ << ".L" << continueBranch << ":\n";
+
+    if (ctx->expr(exprNum + 2)) 
+    {
+        visit(ctx->expr(exprNum + 2));
+    }
+    code_ << "\tj .L" << startBranch << "\n"
+            << ".L" << endBranch << ":\n";
+    breakTarget.pop_back();
+    continueTarget.pop_back();
+
+    if (--stmtID == 0) 
+    {
+        ++blockID;
+    }
+    int pos = curFunc.rfind('_');
+    curFunc = curFunc.substr(0, pos);
+    return retType::UNDEF;
+}
+
+// while
+antlrcpp::Any CodeEmission::visitWhileLoop(MiniDecafParser::WhileLoopContext *ctx) {
+    int startBranch = label++;
+    int endBranch = label++;
+
+    breakTarget.push_back(endBranch);
+    continueTarget.push_back(startBranch);
+
+    code_ << ".L" << startBranch << ":\n";
+    visit(ctx->expr());
+    code_ << "\tbeqz a0, .L" << endBranch << "\n";
+    visit(ctx->stmt());
+    code_ << "\tj .L" << startBranch << "\n"
+            << ".L" << endBranch << ":\n";
+
+    breakTarget.pop_back();
+    continueTarget.pop_back();
+    return retType::UNDEF;
+}
+
+// do while
+antlrcpp::Any CodeEmission::visitDoWhile(MiniDecafParser::DoWhileContext *ctx) {
+    
+    int startBranch = label++;
+    int endBranch = label++;
+    breakTarget.push_back(endBranch);
+    continueTarget.push_back(startBranch);
+
+    code_ << ".L" << startBranch << ":\n";
+    visit(ctx->stmt());
+    visit(ctx->expr());
+    code_ << "\tbnez a0, .L" << startBranch << "\n";
+    code_ << ".L" << endBranch << ":\n";
+
+    breakTarget.pop_back();
+    continueTarget.pop_back();
+    return retType::UNDEF;
+}
+
+// break
+antlrcpp::Any CodeEmission::visitBreak(MiniDecafParser::BreakContext *ctx) {
+    code_ << "\tj .L" << breakTarget.back() << "\n";
+    return retType::UNDEF;
+}
+
+// continue
+antlrcpp::Any CodeEmission::visitContinue(MiniDecafParser::ContinueContext *ctx) {
+    code_ << "\tj .L" << continueTarget.back() << "\n";
+    return retType::UNDEF; 
+}

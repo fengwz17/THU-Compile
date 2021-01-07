@@ -12,11 +12,11 @@ func
 
 blockItem
     : stmt
-    | declaration
+    | declaration ';'
     ;
 
 declaration
-    : type Identifier ('=' expr)? ';'
+    : type Identifier ('=' expr)?
     # varDefine
     ;
 
@@ -29,8 +29,28 @@ stmt
 
     | If '(' expr ')' stmt (Else stmt)?
     # ifElse 
+
     | '{' blockItem* '}' 
     # block
+
+    | For '(' (declaration | expr)? ';' (expr)? ';' (expr)? ')' stmt     
+    # forLoop
+    
+    | While '(' expr ')' stmt    
+    # whileLoop
+
+    | Do stmt While '(' expr ')' ';'                            
+    # doWhile
+
+   
+    | Break ';'                                                   
+    # break
+
+    | Continue ';'                                                
+    # continue        
+
+    | ';'
+    # semicolon
     ;
 
 expr                
@@ -39,6 +59,9 @@ expr
 
     | expr (Multiplication | Division | Modulo) expr    
     # mulDiv
+
+    | expr (Addition | Minus) expr  
+    # addSub
 
     | expr (LT | LE | GT | GE) expr
     # compare
@@ -51,9 +74,6 @@ expr
 
     | expr (LOR) expr
     # lor
-
-    | expr (Addition | Minus) expr  
-    # addSub
     
     | expr '?' expr ':' expr
     # condExpr
@@ -65,7 +85,7 @@ expr
     # assign
 
     | Identifier
-    # Identifier
+    # identifier
 
     | Integer   
     # integer                       

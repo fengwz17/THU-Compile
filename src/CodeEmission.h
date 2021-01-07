@@ -31,19 +31,26 @@ class CodeEmission : public MiniDecafBaseVisitor {
 
         antlrcpp::Any visitIfElse(MiniDecafParser::IfElseContext *ctx);
         antlrcpp::Any visitCondExpr(MiniDecafParser::CondExprContext *ctx);
+
+        antlrcpp::Any visitForLoop(MiniDecafParser::ForLoopContext *ctx);
+        antlrcpp::Any visitWhileLoop(MiniDecafParser::WhileLoopContext *ctx);
+        antlrcpp::Any visitDoWhile(MiniDecafParser::DoWhileContext *ctx);
+        antlrcpp::Any visitBreak(MiniDecafParser::BreakContext *ctx);
+        antlrcpp::Any visitContinue(MiniDecafParser::ContinueContext *ctx);
         
     private:
-        /*
-            Stringstream used to store generated codes
-        */
+     
         std::ostringstream code_;
 
-        std::string funcName;
+        std::string curFunc;
         symTab varTable;
-        varTab varID2;
+        varTab varID;
         bool retState;
         int label;
         int blockID, stmtID;
+
+        std::vector<int> breakTarget, continueTarget;
+
 
         /* 
             Translation of IR to ASM;
