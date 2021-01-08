@@ -11,32 +11,82 @@ antlrcpp::Any CodeEmission::visitProg(MiniDecafParser::ProgContext *ctx, symTab&
     return code_.str();
 }
 
-// Visit Func node, no parameters
 antlrcpp::Any CodeEmission::visitFunc(MiniDecafParser::FuncContext *ctx) {
-    curFunc = ctx->Identifier()->getText();
-    retState = true;
-    blockID = 0;
-    stmtID = 0;
-    // Calling convention: saving ra(return address), caller fp and allocating stack memory for local variable
-    code_ << curFunc << ":\n"
-          << "\tsw ra, -4(sp)\n"
-          << "\taddi sp, sp, -4\n"
-          << "\tsw fp, -4(sp)\n"
-          << "\taddi fp, sp, -4\n"
-          << "\taddi sp, fp, ";
 
-    int capacity = varTable[curFunc].size();
-    code_ << -4 * capacity << "\n";
-
-    visitChildren(ctx);
-
-    // Directly return in func 
-    if (retState) 
+    if (ctx->Semicolon()) 
     {
-        code_ << "\tli a0, 0\n"
-              << ret;
+        return retType::INT;
+    }
+    else
+    {
+        curFunc = ctx->Identifier(0)->getText();
+        retState = true;
+        blockID = 0;
+        stmtID = 0;
+    
+        code_ << curFunc << ":\n"
+            << "\tsw ra, -4(sp)\n"
+            << "\taddi sp, sp, -4\n"
+            << "\tsw fp, -4(sp)\n"
+            << "\taddi fp, sp, -4\n"
+            << "\taddi sp, fp, ";
+
+        int capacity = -1;
+        for (auto& var : varTable) 
+        {
+            if (var.first.substr(0, curFunc.length()) == curFunc) 
+            {
+                capacity += varTable[var.first].size();
+            }
+        }
+        code_ << -4 * capacity << "\n";
+
+        for (int i = 1; i < ctx->Identifier().size(); ++i) 
+        {
+            if (ctx->Identifier().size() > 8) 
+            {
+                code_ << "\tlw t0, " << 8 + 4 * varTable[curFunc][ctx->Identifier(i)->getText()] << "(fp)\n";
+                code_ << "\tsw t0, " << -4 - 4 * varTable[curFunc][ctx->Identifier(i)->getText()] << "(fp)\n";
+            } 
+            else 
+            {
+                code_ << "\tsw a" << i-1 << ", " << -4 - 4 * varTable[curFunc][ctx->Identifier(i)->getText()] << "(fp)\n";
+            }
+        } 
+        visitChildren(ctx);
+
+        // Dealing with no return in main()
+        if (retState) 
+        {
+            code_ << "\tli a0, 0\n"
+                  << ret;
+        }
     }
     return retType::INT;
+}
+
+//@brief: Visit FuncCall node
+antlrcpp::Any CodeEmission::visitFuncCall(MiniDecafParser::FuncCallContext *ctx) {
+    // Before calling a function, we should compute the arguments and pass them using stack or register
+    if (ctx->expr().size() > 7) 
+    { 
+        for (int i = ctx->expr().size()-1; i >= 0; --i) 
+        {
+            visit(ctx->expr(i));
+        }
+    } 
+    else 
+    {
+        for (int i = ctx->expr().size() - 1; i >= 0; --i) 
+        {
+            visit(ctx->expr(i));
+            code_ << "\tmv a" << i << ", a0\n";
+        }
+    }
+    code_ << "\tcall " << ctx->Identifier()->getText() << "\n"
+        << "\taddi sp, sp, " << 4 + 4 * ctx->expr().size() << "\n"
+        << push;
+    return retType::UNDEF;
 }
 
 antlrcpp::Any CodeEmission::visitBlock(MiniDecafParser::BlockContext *ctx) {

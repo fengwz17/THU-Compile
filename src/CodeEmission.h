@@ -11,6 +11,7 @@ class CodeEmission : public MiniDecafBaseVisitor {
     public:
         antlrcpp::Any visitProg(MiniDecafParser::ProgContext *ctx, symTab& symbol_, varTab& varID);
         antlrcpp::Any visitFunc(MiniDecafParser::FuncContext *ctx);
+        antlrcpp::Any visitFuncCall(MiniDecafParser::FuncCallContext *ctx);
         antlrcpp::Any visitBlock(MiniDecafParser::BlockContext *ctx);
         antlrcpp::Any visitRetStmt(MiniDecafParser::RetStmtContext *ctx);
         antlrcpp::Any visitUnary(MiniDecafParser::UnaryContext *ctx);

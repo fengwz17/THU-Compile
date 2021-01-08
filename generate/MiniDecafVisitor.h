@@ -47,17 +47,11 @@ public:
 
     virtual antlrcpp::Any visitSemicolon(MiniDecafParser::SemicolonContext *context) = 0;
 
-    virtual antlrcpp::Any visitEqual(MiniDecafParser::EqualContext *context) = 0;
-
     virtual antlrcpp::Any visitIdentifier(MiniDecafParser::IdentifierContext *context) = 0;
-
-    virtual antlrcpp::Any visitParen(MiniDecafParser::ParenContext *context) = 0;
 
     virtual antlrcpp::Any visitCompare(MiniDecafParser::CompareContext *context) = 0;
 
     virtual antlrcpp::Any visitCondExpr(MiniDecafParser::CondExprContext *context) = 0;
-
-    virtual antlrcpp::Any visitLand(MiniDecafParser::LandContext *context) = 0;
 
     virtual antlrcpp::Any visitAddSub(MiniDecafParser::AddSubContext *context) = 0;
 
@@ -68,6 +62,14 @@ public:
     virtual antlrcpp::Any visitMulDiv(MiniDecafParser::MulDivContext *context) = 0;
 
     virtual antlrcpp::Any visitLor(MiniDecafParser::LorContext *context) = 0;
+
+    virtual antlrcpp::Any visitEqual(MiniDecafParser::EqualContext *context) = 0;
+
+    virtual antlrcpp::Any visitParen(MiniDecafParser::ParenContext *context) = 0;
+
+    virtual antlrcpp::Any visitLand(MiniDecafParser::LandContext *context) = 0;
+
+    virtual antlrcpp::Any visitFuncCall(MiniDecafParser::FuncCallContext *context) = 0;
 
     virtual antlrcpp::Any visitAssign(MiniDecafParser::AssignContext *context) = 0;
 

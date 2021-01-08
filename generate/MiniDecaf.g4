@@ -3,11 +3,11 @@ grammar MiniDecaf;
 import CommonLex;
 
 prog
-    : func EOF
+    : func* EOF
     ;
 
 func
-    : type Identifier '(' ')' '{' blockItem* '}'
+    : type Identifier '(' (type Identifier ',')* (type Identifier)? ')' ('{' blockItem* '}' | ';')
     ;
 
 blockItem
@@ -53,8 +53,11 @@ stmt
     # semicolon
     ;
 
-expr                
-    : (Minus | Exclamation | Tilde) expr
+expr        
+    : Identifier '(' (expr ',')* (expr)? ')'
+    # funcCall
+
+    | (Minus | Exclamation | Tilde) expr
     # unary
 
     | expr (Multiplication | Division | Modulo) expr    

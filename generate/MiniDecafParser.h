@@ -48,8 +48,9 @@ public:
   public:
     ProgContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    FuncContext *func();
     antlr4::tree::TerminalNode *EOF();
+    std::vector<FuncContext *> func();
+    FuncContext* func(size_t i);
 
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -62,12 +63,17 @@ public:
   public:
     FuncContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    TypeContext *type();
-    antlr4::tree::TerminalNode *Identifier();
+    std::vector<TypeContext *> type();
+    TypeContext* type(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> Identifier();
+    antlr4::tree::TerminalNode* Identifier(size_t i);
     antlr4::tree::TerminalNode *Lparen();
     antlr4::tree::TerminalNode *Rparen();
     antlr4::tree::TerminalNode *Lbrace();
     antlr4::tree::TerminalNode *Rbrace();
+    antlr4::tree::TerminalNode *Semicolon();
+    std::vector<antlr4::tree::TerminalNode *> Comma();
+    antlr4::tree::TerminalNode* Comma(size_t i);
     std::vector<BlockItemContext *> blockItem();
     BlockItemContext* blockItem(size_t i);
 
@@ -269,34 +275,11 @@ public:
    
   };
 
-  class  EqualContext : public ExprContext {
-  public:
-    EqualContext(ExprContext *ctx);
-
-    std::vector<ExprContext *> expr();
-    ExprContext* expr(size_t i);
-    antlr4::tree::TerminalNode *EQ();
-    antlr4::tree::TerminalNode *NEQ();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
   class  IdentifierContext : public ExprContext {
   public:
     IdentifierContext(ExprContext *ctx);
 
     antlr4::tree::TerminalNode *Identifier();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  ParenContext : public ExprContext {
-  public:
-    ParenContext(ExprContext *ctx);
-
-    antlr4::tree::TerminalNode *Lparen();
-    ExprContext *expr();
-    antlr4::tree::TerminalNode *Rparen();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -323,17 +306,6 @@ public:
     ExprContext* expr(size_t i);
     antlr4::tree::TerminalNode *Question();
     antlr4::tree::TerminalNode *Colon();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  LandContext : public ExprContext {
-  public:
-    LandContext(ExprContext *ctx);
-
-    std::vector<ExprContext *> expr();
-    ExprContext* expr(size_t i);
-    antlr4::tree::TerminalNode *LAND();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -391,6 +363,55 @@ public:
     std::vector<ExprContext *> expr();
     ExprContext* expr(size_t i);
     antlr4::tree::TerminalNode *LOR();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  EqualContext : public ExprContext {
+  public:
+    EqualContext(ExprContext *ctx);
+
+    std::vector<ExprContext *> expr();
+    ExprContext* expr(size_t i);
+    antlr4::tree::TerminalNode *EQ();
+    antlr4::tree::TerminalNode *NEQ();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  ParenContext : public ExprContext {
+  public:
+    ParenContext(ExprContext *ctx);
+
+    antlr4::tree::TerminalNode *Lparen();
+    ExprContext *expr();
+    antlr4::tree::TerminalNode *Rparen();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  LandContext : public ExprContext {
+  public:
+    LandContext(ExprContext *ctx);
+
+    std::vector<ExprContext *> expr();
+    ExprContext* expr(size_t i);
+    antlr4::tree::TerminalNode *LAND();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  FuncCallContext : public ExprContext {
+  public:
+    FuncCallContext(ExprContext *ctx);
+
+    antlr4::tree::TerminalNode *Identifier();
+    antlr4::tree::TerminalNode *Lparen();
+    antlr4::tree::TerminalNode *Rparen();
+    std::vector<ExprContext *> expr();
+    ExprContext* expr(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> Comma();
+    antlr4::tree::TerminalNode* Comma(size_t i);
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
