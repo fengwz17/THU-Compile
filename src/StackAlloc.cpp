@@ -61,6 +61,7 @@ antlrcpp::Any StackAlloc::visitFunc(MiniDecafParser::FuncContext *ctx) {
                 std::string varName = ctx->Identifier(i)->getText();
                 if (tmpVar.count(varName) > 0)
                 {
+                    std::cerr << "[ERROR] Conflict parameters \n";
                     exit(1);
                 }
                 tmpVar.insert(varName);
