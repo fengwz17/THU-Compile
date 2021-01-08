@@ -17,16 +17,23 @@ antlrcpp::Any StackAlloc::visitFunc(MiniDecafParser::FuncContext *ctx) {
     blockID = 0;
     stmtID = 0;
     offset = 0;
-   
+    
+    // funcDeName.insert(curFunc);
+    if (varTable["globl"].count(curFunc) > 0)
+    {
+        std::cerr << "[ERROR] funcName and global conflict\n";
+        exit(1);
+    }
+
     if (ctx->Semicolon()) 
     {
         for (auto i = 1; i < ctx->Identifier().size(); ++i) 
         {
             // std::string varName = ctx->Identifier(i)->getText();
-            // std::cout << "name: " << curFunc << " " << funcTable[curFunc]++ << '\n';
-            funcTable[curFunc]++;
+            // std::cout << "name: " << curFunc << " " << funcParaTable[curFunc]++ << '\n';
+            funcParaTable[curFunc]++;
         }
-        
+   
         varTable[curFunc]["$"] = 0;
     }
     else
@@ -39,9 +46,9 @@ antlrcpp::Any StackAlloc::visitFunc(MiniDecafParser::FuncContext *ctx) {
         else 
         {
             varTable[curFunc]["$"] = 1;
-            if (funcTable.count(curFunc) > 0)
+            if (funcParaTable.count(curFunc) > 0)
             {
-                if (funcTable[curFunc] != ctx->Identifier().size() - 1)
+                if (funcParaTable[curFunc] != ctx->Identifier().size() - 1)
                 {
                     std::cerr << "[ERROR] Conflict decl and def \n";
                     exit(1);
@@ -51,7 +58,7 @@ antlrcpp::Any StackAlloc::visitFunc(MiniDecafParser::FuncContext *ctx) {
             {
                 for (auto i = 1; i < ctx->Identifier().size(); ++i) 
                 {
-                    funcTable[curFunc]++;
+                    funcParaTable[curFunc]++;
                 }
             }
             
@@ -75,9 +82,9 @@ antlrcpp::Any StackAlloc::visitFunc(MiniDecafParser::FuncContext *ctx) {
 
 antlrcpp::Any StackAlloc::visitFuncCall(MiniDecafParser::FuncCallContext *ctx) {
     std::string funcName = ctx->Identifier()->getText();
-    if (funcTable[funcName] != ctx->expr().size())
+    if (funcParaTable[funcName] != ctx->expr().size())
     {
-        std::cerr << funcName << " " << funcTable[funcName] << " " << ctx->expr().size() << '\n';
+        std::cerr << funcName << " " << funcParaTable[funcName] << " " << ctx->expr().size() << '\n';
         exit(1);
     }
     if (varTable.count(funcName) == 0) 
@@ -86,6 +93,32 @@ antlrcpp::Any StackAlloc::visitFuncCall(MiniDecafParser::FuncCallContext *ctx) {
         exit(1);
     }
     return retType::UNDEF;
+}
+
+antlrcpp::Any StackAlloc::visitGlobal(MiniDecafParser::GlobalContext *ctx) {
+    std::string varName = ctx->Identifier()->getText();
+    // if (funcDeName.count(varName) > 0)
+    // {
+    //     std::cerr << "[ERROR] Global and funcName conflict\n";
+    //     exit(1);
+    // }
+    // else
+    // {
+    //     funcDeName.insert(varName);
+    // }
+    if (varTable.count(varName) > 0)
+    {
+        std::cerr << "[ERROR] Global and funcName conflict\n";
+        exit(1);
+    }
+    
+    if (varTable["globl"].count(varName) > 0) 
+    {
+        std::cerr << "[ERROR] Global variable " << varName << "redifined \n";
+        exit(1);
+    }
+    varTable["globl"][varName] = 0;
+    return retType::INT;
 }
 
 antlrcpp::Any StackAlloc::visitBlock(MiniDecafParser::BlockContext *ctx) {
@@ -150,8 +183,13 @@ antlrcpp::Any StackAlloc::visitIdentifier(MiniDecafParser::IdentifierContext *ct
         }
         return retType::INT;
     }
-    std::cerr << "[ERROR] Using: Variable " << varName << " have not been defined\n";
-    exit(1);
+
+    if (varTable["globl"].count(varName) == 0)
+    {
+        std::cerr << "[ERROR] Using: Variable " << varName << " have not been defined\n";
+        exit(1);
+    }
+    return retType::INT;
 }
 
 antlrcpp::Any StackAlloc::visitAssign(MiniDecafParser::AssignContext *ctx) {
@@ -175,8 +213,13 @@ antlrcpp::Any StackAlloc::visitAssign(MiniDecafParser::AssignContext *ctx) {
         }
         return retType::INT;
     }
-    std::cerr << "[ERROR] Assign: Variable " << varName << " have not been defined\n";
-    exit(1);
+
+    if (varTable["globl"].count(varName) == 0)
+    {
+        std::cerr << "[ERROR] Using: Variable " << varName << " have not been defined\n";
+        exit(1);
+    }
+    return retType::INT;
 }
 
 antlrcpp::Any StackAlloc::visitForLoop(MiniDecafParser::ForLoopContext *ctx) {

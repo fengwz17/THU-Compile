@@ -7,8 +7,11 @@ antlrcpp::Any CodeEmission::visitProg(MiniDecafParser::ProgContext *ctx, symTab&
     label = 0;
     code_ << ".section .text\n"
         << ".globl main\n";
+    data_ << ".section .data\n";
+    bss_ << ".section .bss\n";
     visitChildren(ctx);
-    return code_.str();
+    std::string result = code_.str() + data_.str() + bss_.str();  
+    return result;
 }
 
 antlrcpp::Any CodeEmission::visitFunc(MiniDecafParser::FuncContext *ctx) {
@@ -68,7 +71,7 @@ antlrcpp::Any CodeEmission::visitFunc(MiniDecafParser::FuncContext *ctx) {
 //@brief: Visit FuncCall node
 antlrcpp::Any CodeEmission::visitFuncCall(MiniDecafParser::FuncCallContext *ctx) {
     // Before calling a function, we should compute the arguments and pass them using stack or register
-    if (ctx->expr().size() > 7) 
+    if (ctx->expr().size() >= 8) 
     { 
         for (int i = ctx->expr().size()-1; i >= 0; --i) 
         {
@@ -162,6 +165,25 @@ antlrcpp::Any CodeEmission::visitUnary(MiniDecafParser::UnaryContext *ctx) {
         return retType::INT;
     }
     return retType::UNDEF;
+}
+
+antlrcpp::Any CodeEmission::visitGlobal(MiniDecafParser::GlobalContext *ctx) {
+    std::string varName = ctx->Identifier()->getText();
+    if (ctx->Integer()) 
+    {
+        data_ << ".globl " << varName << "\n"
+              << ".align 4\n"
+              << ".size " << varName << ", 4\n"
+              << varName << ":\n" 
+              << "\t.word " << ctx->Integer()->getText() << "\n";
+    }
+    else 
+    {
+        bss_ << ".globl " << varName << "\n"
+             << varName << ":\n" 
+             << ".space 4\n";
+    }
+    return retType::INT;
 }
 
 // ( expr )
@@ -335,6 +357,13 @@ antlrcpp::Any CodeEmission::visitIdentifier(MiniDecafParser::IdentifierContext *
         // std::cout << "tmp varTable: " << tmpFunc << " " << varName << " " << varTable[tmpFunc][varName] << '\n';
         return retType::INT;
     }
+
+    if (varTable["globl"].count(varName) > 0) 
+    {
+        code_ << "\tla t0, " << varName << "\n"
+              << "\tlw a0, 0(t0)\n"
+              << push;
+    }
    
     return retType::INT;
 }
@@ -367,6 +396,13 @@ antlrcpp::Any CodeEmission::visitAssign(MiniDecafParser::AssignContext *ctx) {
         code_ << "\tsw a0, " << -4 - 4 * varTable[tmpFunc][varName] << "(fp)\n";
         return retType::INT;
     }
+
+    if (varTable["globl"].count(varName) > 0) 
+    {
+        code_ << "\tla t0, " << varName << "\n"
+              << "\tsw a0, 0(t0)\n";
+    }
+
     // Load the value from stack
     return retType::INT;
 }

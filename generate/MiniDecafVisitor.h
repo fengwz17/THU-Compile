@@ -25,6 +25,8 @@ public:
 
     virtual antlrcpp::Any visitBlockItem(MiniDecafParser::BlockItemContext *context) = 0;
 
+    virtual antlrcpp::Any visitGlobal(MiniDecafParser::GlobalContext *context) = 0;
+
     virtual antlrcpp::Any visitVarDefine(MiniDecafParser::VarDefineContext *context) = 0;
 
     virtual antlrcpp::Any visitRetStmt(MiniDecafParser::RetStmtContext *context) = 0;

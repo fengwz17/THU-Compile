@@ -22,8 +22,8 @@ public:
   };
 
   enum {
-    RuleProg = 0, RuleFunc = 1, RuleBlockItem = 2, RuleDeclaration = 3, 
-    RuleStmt = 4, RuleExpr = 5, RuleType = 6
+    RuleProg = 0, RuleFunc = 1, RuleBlockItem = 2, RuleGlobalDecl = 3, RuleDeclaration = 4, 
+    RuleStmt = 5, RuleExpr = 6, RuleType = 7
   };
 
   MiniDecafParser(antlr4::TokenStream *input);
@@ -39,6 +39,7 @@ public:
   class ProgContext;
   class FuncContext;
   class BlockItemContext;
+  class GlobalDeclContext;
   class DeclarationContext;
   class StmtContext;
   class ExprContext;
@@ -51,6 +52,10 @@ public:
     antlr4::tree::TerminalNode *EOF();
     std::vector<FuncContext *> func();
     FuncContext* func(size_t i);
+    std::vector<GlobalDeclContext *> globalDecl();
+    GlobalDeclContext* globalDecl(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> Semicolon();
+    antlr4::tree::TerminalNode* Semicolon(size_t i);
 
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -98,6 +103,32 @@ public:
   };
 
   BlockItemContext* blockItem();
+
+  class  GlobalDeclContext : public antlr4::ParserRuleContext {
+  public:
+    GlobalDeclContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+   
+    GlobalDeclContext() = default;
+    void copyFrom(GlobalDeclContext *context);
+    using antlr4::ParserRuleContext::copyFrom;
+
+    virtual size_t getRuleIndex() const override;
+
+   
+  };
+
+  class  GlobalContext : public GlobalDeclContext {
+  public:
+    GlobalContext(GlobalDeclContext *ctx);
+
+    TypeContext *type();
+    antlr4::tree::TerminalNode *Identifier();
+    antlr4::tree::TerminalNode *Integer();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  GlobalDeclContext* globalDecl();
 
   class  DeclarationContext : public antlr4::ParserRuleContext {
   public:

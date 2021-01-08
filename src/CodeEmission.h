@@ -15,6 +15,7 @@ class CodeEmission : public MiniDecafBaseVisitor {
         antlrcpp::Any visitBlock(MiniDecafParser::BlockContext *ctx);
         antlrcpp::Any visitRetStmt(MiniDecafParser::RetStmtContext *ctx);
         antlrcpp::Any visitUnary(MiniDecafParser::UnaryContext *ctx);
+        antlrcpp::Any visitGlobal(MiniDecafParser::GlobalContext *ctx);
         
         antlrcpp::Any visitAddSub(MiniDecafParser::AddSubContext *ctx);
         antlrcpp::Any visitMulDiv(MiniDecafParser::MulDivContext *ctx);
@@ -42,6 +43,8 @@ class CodeEmission : public MiniDecafBaseVisitor {
     private:
      
         std::ostringstream code_;
+        std::ostringstream data_;
+        std::ostringstream bss_;
 
         std::string curFunc;
         symTab varTable;
