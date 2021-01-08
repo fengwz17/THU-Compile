@@ -127,7 +127,11 @@ break，continue的标号需要用一个数据结构维护，这里用一个vect
 
 ## 错误检查
 
-如实验指导书，在语法中用global_decl: type Identifier ('=' Integer)? ';'直接限定初始值只能是整数型。
+如实验指导书，在语法中用
+```
+global_decl: type Identifier ('=' Integer)? ';'
+```
+直接限定初始值只能是整数型。
 
 利用前面维护的符号表来进行变量重复声明、变量名与函数声明冲突等错误的检查。
 
