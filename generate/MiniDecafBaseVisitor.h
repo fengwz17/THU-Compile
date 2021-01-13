@@ -75,11 +75,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitIdentifier(MiniDecafParser::IdentifierContext *ctx) override {
+  virtual antlrcpp::Any visitAssign(MiniDecafParser::AssignContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitCompare(MiniDecafParser::CompareContext *ctx) override {
+  virtual antlrcpp::Any visitCond(MiniDecafParser::CondContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -87,19 +87,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitAddSub(MiniDecafParser::AddSubContext *ctx) override {
+  virtual antlrcpp::Any visitLor_op(MiniDecafParser::Lor_opContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitUnary(MiniDecafParser::UnaryContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitInteger(MiniDecafParser::IntegerContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitMulDiv(MiniDecafParser::MulDivContext *ctx) override {
+  virtual antlrcpp::Any visitLand_op(MiniDecafParser::Land_opContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -107,15 +99,51 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitLand(MiniDecafParser::LandContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitEqual_op(MiniDecafParser::Equal_opContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitEqual(MiniDecafParser::EqualContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitParen(MiniDecafParser::ParenContext *ctx) override {
+  virtual antlrcpp::Any visitRela_op(MiniDecafParser::Rela_opContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitLand(MiniDecafParser::LandContext *ctx) override {
+  virtual antlrcpp::Any visitCompare(MiniDecafParser::CompareContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitAdd_op(MiniDecafParser::Add_opContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitAddSub(MiniDecafParser::AddSubContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitMul_op(MiniDecafParser::Mul_opContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitUnary_op(MiniDecafParser::Unary_opContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitMulDiv(MiniDecafParser::MulDivContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitUnaryOp(MiniDecafParser::UnaryOpContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitCast(MiniDecafParser::CastContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -123,7 +151,15 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitAssign(MiniDecafParser::AssignContext *ctx) override {
+  virtual antlrcpp::Any visitParen(MiniDecafParser::ParenContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitIdentifier(MiniDecafParser::IdentifierContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitInteger(MiniDecafParser::IntegerContext *ctx) override {
     return visitChildren(ctx);
   }
 

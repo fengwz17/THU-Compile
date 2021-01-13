@@ -49,31 +49,49 @@ public:
 
     virtual antlrcpp::Any visitSemicolon(MiniDecafParser::SemicolonContext *context) = 0;
 
-    virtual antlrcpp::Any visitIdentifier(MiniDecafParser::IdentifierContext *context) = 0;
+    virtual antlrcpp::Any visitAssign(MiniDecafParser::AssignContext *context) = 0;
 
-    virtual antlrcpp::Any visitCompare(MiniDecafParser::CompareContext *context) = 0;
+    virtual antlrcpp::Any visitCond(MiniDecafParser::CondContext *context) = 0;
 
     virtual antlrcpp::Any visitCondExpr(MiniDecafParser::CondExprContext *context) = 0;
 
-    virtual antlrcpp::Any visitAddSub(MiniDecafParser::AddSubContext *context) = 0;
+    virtual antlrcpp::Any visitLor_op(MiniDecafParser::Lor_opContext *context) = 0;
 
-    virtual antlrcpp::Any visitUnary(MiniDecafParser::UnaryContext *context) = 0;
-
-    virtual antlrcpp::Any visitInteger(MiniDecafParser::IntegerContext *context) = 0;
-
-    virtual antlrcpp::Any visitMulDiv(MiniDecafParser::MulDivContext *context) = 0;
+    virtual antlrcpp::Any visitLand_op(MiniDecafParser::Land_opContext *context) = 0;
 
     virtual antlrcpp::Any visitLor(MiniDecafParser::LorContext *context) = 0;
 
+    virtual antlrcpp::Any visitLand(MiniDecafParser::LandContext *context) = 0;
+
+    virtual antlrcpp::Any visitEqual_op(MiniDecafParser::Equal_opContext *context) = 0;
+
     virtual antlrcpp::Any visitEqual(MiniDecafParser::EqualContext *context) = 0;
 
-    virtual antlrcpp::Any visitParen(MiniDecafParser::ParenContext *context) = 0;
+    virtual antlrcpp::Any visitRela_op(MiniDecafParser::Rela_opContext *context) = 0;
 
-    virtual antlrcpp::Any visitLand(MiniDecafParser::LandContext *context) = 0;
+    virtual antlrcpp::Any visitCompare(MiniDecafParser::CompareContext *context) = 0;
+
+    virtual antlrcpp::Any visitAdd_op(MiniDecafParser::Add_opContext *context) = 0;
+
+    virtual antlrcpp::Any visitAddSub(MiniDecafParser::AddSubContext *context) = 0;
+
+    virtual antlrcpp::Any visitMul_op(MiniDecafParser::Mul_opContext *context) = 0;
+
+    virtual antlrcpp::Any visitUnary_op(MiniDecafParser::Unary_opContext *context) = 0;
+
+    virtual antlrcpp::Any visitMulDiv(MiniDecafParser::MulDivContext *context) = 0;
+
+    virtual antlrcpp::Any visitUnaryOp(MiniDecafParser::UnaryOpContext *context) = 0;
+
+    virtual antlrcpp::Any visitCast(MiniDecafParser::CastContext *context) = 0;
 
     virtual antlrcpp::Any visitFuncCall(MiniDecafParser::FuncCallContext *context) = 0;
 
-    virtual antlrcpp::Any visitAssign(MiniDecafParser::AssignContext *context) = 0;
+    virtual antlrcpp::Any visitParen(MiniDecafParser::ParenContext *context) = 0;
+
+    virtual antlrcpp::Any visitIdentifier(MiniDecafParser::IdentifierContext *context) = 0;
+
+    virtual antlrcpp::Any visitInteger(MiniDecafParser::IntegerContext *context) = 0;
 
     virtual antlrcpp::Any visitType(MiniDecafParser::TypeContext *context) = 0;
 

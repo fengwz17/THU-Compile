@@ -16,9 +16,9 @@ public:
     Do = 8, Break = 9, Continue = 10, Lparen = 11, Rparen = 12, Lbrkt = 13, 
     Rbrkt = 14, Lbrace = 15, Rbrace = 16, Comma = 17, Semicolon = 18, Question = 19, 
     Colon = 20, Minus = 21, Exclamation = 22, Tilde = 23, Addition = 24, 
-    Multiplication = 25, Division = 26, Modulo = 27, LAND = 28, LOR = 29, 
-    EQ = 30, NEQ = 31, LT = 32, LE = 33, GT = 34, GE = 35, Integer = 36, 
-    Identifier = 37, WS = 38
+    Multiplication = 25, AND = 26, Division = 27, Modulo = 28, LAND = 29, 
+    LOR = 30, EQ = 31, NEQ = 32, LT = 33, LE = 34, GT = 35, GE = 36, Integer = 37, 
+    Identifier = 38, WS = 39
   };
 
   MiniDecafLexer(antlr4::CharStream *input);

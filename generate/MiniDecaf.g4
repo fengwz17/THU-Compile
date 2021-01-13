@@ -30,7 +30,7 @@ stmt
     : 'return' expr ';' 
     # retStmt
 
-    | expr ';'
+    | expr? ';'
     # exprStmt
 
     | If '(' expr ')' stmt (Else stmt)?
@@ -59,47 +59,90 @@ stmt
     # semicolon
     ;
 
-expr        
-    : Identifier '(' (expr ',')* (expr)? ')'
-    # funcCall
-
-    | (Minus | Exclamation | Tilde) expr
-    # unary
-
-    | expr (Multiplication | Division | Modulo) expr    
-    # mulDiv
-
-    | expr (Addition | Minus) expr  
-    # addSub
-
-    | expr (LT | LE | GT | GE) expr
-    # compare
-
-    | expr (EQ | NEQ) expr
-    # equal
-
-    | expr (LAND) expr
-    # land
-
-    | expr (LOR) expr
-    # lor
-    
-    | expr '?' expr ':' expr
-    # condExpr
-
-    | Lparen expr Rparen    
-    # paren
-
-    | Identifier '=' expr
+expr
+    : unary '=' expr
     # assign
 
-    | Identifier
+    | conditional
+    # cond
+    ;
+
+conditional
+    : logical_or '?' expr ':' conditional
+    # condExpr
+
+    | logical_or
+    # lor_op
+    ;
+
+logical_or
+    : logical_or '||' logical_or
+    # lor
+
+    | logical_and                                                       
+    # land_op
+    ;
+
+logical_and
+    : logical_and '&&' logical_and                                         
+    # land
+
+    | equality                                                           
+    # equal_op
+    ;
+
+equality
+    : equality ('==' | '!=') equality                                         
+    # equal
+
+    | relational                                                           
+    # rela_op
+    ;
+
+relational
+    : relational ('<' | '<=' | '>' | '>=') relational                             
+    # compare
+
+    | add                                                           
+    # add_op
+    ;
+
+add
+    : add ('+' | '-') add                                           
+    # addSub
+
+    | mul                                                           
+    # mul_op
+    ;
+
+mul
+    : mul ('*' | '/' | '%') mul                                     
+    # mulDiv
+
+    | unary                                                        
+    # unary_op
+    ;
+
+unary
+    : ('!' | '~' | '-' | '*' | '&') unary                          
+    # unaryOp
+
+    | '(' type ')' unary                                           
+    # cast
+
+    | Identifier '(' (expr ',')* (expr)? ')'                        
+    # funcCall
+
+    | '(' expr ')'                                                  
+    # paren
+
+    | Identifier                                                    
     # identifier
 
-    | Integer   
-    # integer                       
+    | Integer                                                      
+    # integer
     ;
 
 type
-    : 'int'
+    : 'int' '*'*                                                    
     ;

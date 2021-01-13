@@ -4,42 +4,46 @@
 #include <string>
 #include <iostream>
 
-using symTab = std::map<std::string, std::map<std::string, int>>; 
+using symInTab = std::map<std::string, std::map<std::string, int>>; 
 using varTab = std::map<std::string, int>;
 
 class CodeEmission : public MiniDecafBaseVisitor {
     public:
-        antlrcpp::Any visitProg(MiniDecafParser::ProgContext *ctx, symTab& symbol_, varTab& varID);
+        antlrcpp::Any visitProg(MiniDecafParser::ProgContext *ctx); //, varTab& varID);
         antlrcpp::Any visitFunc(MiniDecafParser::FuncContext *ctx);
         antlrcpp::Any visitFuncCall(MiniDecafParser::FuncCallContext *ctx);
         antlrcpp::Any visitBlock(MiniDecafParser::BlockContext *ctx);
         antlrcpp::Any visitRetStmt(MiniDecafParser::RetStmtContext *ctx);
-        antlrcpp::Any visitUnary(MiniDecafParser::UnaryContext *ctx);
-        antlrcpp::Any visitGlobal(MiniDecafParser::GlobalContext *ctx);
+        antlrcpp::Any visitIfElse(MiniDecafParser::IfElseContext *ctx);
+        antlrcpp::Any visitCondExpr(MiniDecafParser::CondExprContext *ctx);
+        antlrcpp::Any visitExprStmt(MiniDecafParser::ExprStmtContext *ctx);
         
+        antlrcpp::Any visitUnaryOp(MiniDecafParser::UnaryOpContext *ctx);
+        antlrcpp::Any visitParen(MiniDecafParser::ParenContext *ctx);
         antlrcpp::Any visitAddSub(MiniDecafParser::AddSubContext *ctx);
         antlrcpp::Any visitMulDiv(MiniDecafParser::MulDivContext *ctx);
-        antlrcpp::Any visitCompare(MiniDecafParser::CompareContext *ctx);
         antlrcpp::Any visitEqual(MiniDecafParser::EqualContext *ctx);
+        antlrcpp::Any visitCompare(MiniDecafParser::CompareContext *ctx);
         antlrcpp::Any visitLand(MiniDecafParser::LandContext *ctx);
         antlrcpp::Any visitLor(MiniDecafParser::LorContext *ctx);
-        
-        antlrcpp::Any visitParen(MiniDecafParser::ParenContext *ctx);
+            
         antlrcpp::Any visitInteger(MiniDecafParser::IntegerContext *ctx);
-
         antlrcpp::Any visitIdentifier(MiniDecafParser::IdentifierContext *ctx);
         antlrcpp::Any visitVarDefine(MiniDecafParser::VarDefineContext *ctx);
         antlrcpp::Any visitAssign(MiniDecafParser::AssignContext *ctx);
-
-        antlrcpp::Any visitIfElse(MiniDecafParser::IfElseContext *ctx);
-        antlrcpp::Any visitCondExpr(MiniDecafParser::CondExprContext *ctx);
-
+        antlrcpp::Any visitGlobal(MiniDecafParser::GlobalContext *ctx);
+        antlrcpp::Any visitCast(MiniDecafParser::CastContext *ctx);
+   
         antlrcpp::Any visitForLoop(MiniDecafParser::ForLoopContext *ctx);
         antlrcpp::Any visitWhileLoop(MiniDecafParser::WhileLoopContext *ctx);
         antlrcpp::Any visitDoWhile(MiniDecafParser::DoWhileContext *ctx);
         antlrcpp::Any visitBreak(MiniDecafParser::BreakContext *ctx);
         antlrcpp::Any visitContinue(MiniDecafParser::ContinueContext *ctx);
         
+        std::string pushReg(std::string reg);
+        std::string popReg(std::string reg);
+        std::string popReg(std::string reg0, std::string);
+
     private:
      
         std::ostringstream code_;
@@ -47,7 +51,7 @@ class CodeEmission : public MiniDecafBaseVisitor {
         std::ostringstream bss_;
 
         std::string curFunc;
-        symTab varTable;
+        symInTab varTable;
         varTab varID;
         bool retState;
         int label;
@@ -56,20 +60,20 @@ class CodeEmission : public MiniDecafBaseVisitor {
         std::vector<int> breakTarget, continueTarget;
 
 
-        /* 
-            Translation of IR to ASM;
+        // /* 
+        //     Translation of IR to ASM;
 
-            Support IR: push, pop
-        */
-        const char* push = "\taddi sp, sp, -4\n"
-                        "\tsw a0, 0(sp)\n";
+        //     Support IR: push, pop
+        // */
+        // const char* push = "\taddi sp, sp, -4\n"
+        //                 "\tsw a0, 0(sp)\n";
 
-        const char* pop = "\tlw t0, 0(sp)\n"
-                        "\taddi sp, sp, 4\n";
+        // const char* pop = "\tlw t0, 0(sp)\n"
+        //                 "\taddi sp, sp, 4\n";
 
-        const char* pop2 = "\tlw t0, 4(sp)\n"
-                        "\tlw t1, 0(sp)\n"
-                        "\taddi sp, sp, 8\n";
+        // const char* pop2 = "\tlw t0, 4(sp)\n"
+        //                 "\tlw t1, 0(sp)\n"
+        //                 "\taddi sp, sp, 8\n";
 
         const char* ret = "\taddi sp, fp, 4\n"
                         "\tlw ra, 0(sp)\n" 
@@ -80,5 +84,5 @@ class CodeEmission : public MiniDecafBaseVisitor {
         /*
             Specify return type of each operation
         */
-        enum retType {UNDEF, INT};
+        enum retType {LEFT, RIGHT, UNDEF};
 };

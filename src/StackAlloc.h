@@ -5,26 +5,34 @@
 #include <map>
 #include <tuple>
 
-using symTab = std::map<std::string, std::map<std::string, int>>;
+using symInTab = std::map<std::string, std::map<std::string, int>>;
 using varTab = std::map<std::string, int>;
 
 class StackAlloc : public MiniDecafBaseVisitor {
 public:
-    antlrcpp::Any visitProg(MiniDecafParser::ProgContext *ctx, varTab& varID);
     antlrcpp::Any visitFunc(MiniDecafParser::FuncContext *ctx);
-    antlrcpp::Any visitFuncCall(MiniDecafParser::FuncCallContext *ctx);
-    antlrcpp::Any visitGlobal(MiniDecafParser::GlobalContext *ctx);
-    antlrcpp::Any visitVarDefine(MiniDecafParser::VarDefineContext *ctx);
-    antlrcpp::Any visitIdentifier(MiniDecafParser::IdentifierContext *ctx);
-    antlrcpp::Any visitAssign(MiniDecafParser::AssignContext *ctx);
     antlrcpp::Any visitBlock(MiniDecafParser::BlockContext *ctx);
     antlrcpp::Any visitForLoop(MiniDecafParser::ForLoopContext *ctx);
 
+    antlrcpp::Any visitGlobal(MiniDecafParser::GlobalContext *ctx);
+    antlrcpp::Any visitVarDefine(MiniDecafParser::VarDefineContext *ctx);
+    antlrcpp::Any visitAssign(MiniDecafParser::AssignContext *ctx);
 
+    antlrcpp::Any visitEqual(MiniDecafParser::EqualContext *ctx);
+
+    antlrcpp::Any visitUnaryOp(MiniDecafParser::UnaryOpContext *ctx);
+    antlrcpp::Any visitCast(MiniDecafParser::CastContext *ctx);
+    antlrcpp::Any visitFuncCall(MiniDecafParser::FuncCallContext *ctx);
+    antlrcpp::Any visitParen(MiniDecafParser::ParenContext *ctx);
+    antlrcpp::Any visitIdentifier(MiniDecafParser::IdentifierContext *ctx);
+    antlrcpp::Any visitInteger(MiniDecafParser::IntegerContext *ctx);
+
+    antlrcpp::Any visitType(MiniDecafParser::TypeContext *ctx);
+    
 private:
     
     //Symbol table    
-    symTab varTable;
+    symInTab varTable;
     varTab varID;
     varTab funcParaTable;
     std::set<std::string> funcDeName;

@@ -4,6 +4,7 @@
 #include "MiniDecafParser.h"
 #include "CodeEmission.h"
 #include "StackAlloc.h"
+#include "utils.h"
 
 using namespace antlr4;
 using namespace std;
@@ -37,10 +38,10 @@ int main(int argc, const char* argv[]) {
     varTab varID1;
     varTab varID2;
     
-    symTab varTable = alloc.visitProg(treeNode, varID1);
+    alloc.visitProg(treeNode);
     
-    string asmCode = codeEmission.visitProg(treeNode, varTable, varID2);
-    
+    string asmCode = codeEmission.visitProg(treeNode);
+   
     cout << asmCode << endl;
 
     return 0;
