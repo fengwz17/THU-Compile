@@ -18,8 +18,13 @@ public:
     antlrcpp::Any visitVarDefine(MiniDecafParser::VarDefineContext *ctx);
     antlrcpp::Any visitAssign(MiniDecafParser::AssignContext *ctx);
 
+    antlrcpp::Any visitCondExpr(MiniDecafParser::CondExprContext *ctx);
+    	    
+    antlrcpp::Any visitLor(MiniDecafParser::LorContext *ctx);    
+    antlrcpp::Any visitLand(MiniDecafParser::LandContext *ctx);
     antlrcpp::Any visitEqual(MiniDecafParser::EqualContext *ctx);
 
+    antlrcpp::Any visitCompare(MiniDecafParser::CompareContext *ctx);
     antlrcpp::Any visitUnaryOp(MiniDecafParser::UnaryOpContext *ctx);
     antlrcpp::Any visitCast(MiniDecafParser::CastContext *ctx);
     antlrcpp::Any visitFuncCall(MiniDecafParser::FuncCallContext *ctx);

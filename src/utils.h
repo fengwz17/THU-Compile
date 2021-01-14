@@ -133,6 +133,7 @@ public:
     std::shared_ptr<Type> getArgType(int i) { return argType[i]; }
     bool initialized() { return init; }
     void initialize() { init = true; }
+    int getArgSize() {return argType.size(); }
 
 protected:
     bool init;
@@ -141,20 +142,6 @@ protected:
     std::shared_ptr<Type> retType;
 };
 
-/*
-    Symbol table, which stores function, scope & varible information.
-    The table is organized as follows:
-    ------------------------------------------------------
-    | Function | Variable1 | Offset in stack | Data type |
-    |          | Variable2 | ...             | ...       |
-    |          | ...       | ...             | ...       |
-    ------------------------------------------------------
-*/
-
-/*
-    Defining a static, global map used by all the files in the project.
-    We use map structure to store our symbol table.
-*/
 class GlobStruct {
 public:
     symTab<std::shared_ptr<Symbol> > symbolTable;

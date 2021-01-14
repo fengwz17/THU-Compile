@@ -136,6 +136,13 @@ antlrcpp::Any CodeEmission::visitBlock(MiniDecafParser::BlockContext *ctx) {
 // Visit ReturnStmt node, son of Stmt node
 antlrcpp::Any CodeEmission::visitRetStmt(MiniDecafParser::RetStmtContext *ctx) {
     retType type = visit(ctx->expr());
+    std::string retTypeStr = ctx->expr()->getStart()->getText();
+    if (retTypeStr == "&")
+    {
+        std::cerr << "line " << ctx->start->getLine() << ": "
+                  << "[ERROR] Bad return type.\n";
+        exit(1);
+    }
     code_ << popReg("a0");
     // std::cout << "dddddd" << std::endl;
     if (type == retType::LEFT) 
@@ -524,7 +531,24 @@ antlrcpp::Any CodeEmission::visitAssign(MiniDecafParser::AssignContext *ctx) {
 
 // if else
 antlrcpp::Any CodeEmission::visitIfElse(MiniDecafParser::IfElseContext *ctx) {
+
+     
+    std::string t = ctx->expr()->getStart()->getText();
+
+    if (GlobStruct::getInstance().symbolTable[curFunc].count(t) > 0)
+    {
+        // std::cout << "type: " << GlobStruct::getInstance().symbolTable[curFunc][t]->getType()->getStarNum() << std::endl;
+        if (GlobStruct::getInstance().symbolTable[curFunc][t]->getType()->typeCheckLiteral("Intptr") && t != "np")
+        {
+           
+            std::cerr << "line " << ctx->start->getLine() << ": "
+                    << "[ERROR] Condition type error in if condition.\n";
+            exit(1);
+        }
+    }
+
     retType type = visit(ctx->expr());
+
     code_ << popReg("a0");
 
     if (type == retType::LEFT) {
@@ -536,7 +560,9 @@ antlrcpp::Any CodeEmission::visitIfElse(MiniDecafParser::IfElseContext *ctx) {
     {
         int brEnd = label++;
         code_ << "\tbeqz a0, .L" << brEnd << "\n";
+          
         visit(ctx->stmt(0));
+
         code_ << ".L" << brEnd << ":\n";
     }
 
@@ -582,6 +608,7 @@ antlrcpp::Any CodeEmission::visitCondExpr(MiniDecafParser::CondExprContext *ctx)
 // for 
 antlrcpp::Any CodeEmission::visitForLoop(MiniDecafParser::ForLoopContext *ctx) {
     stmtID++;
+    std::string tmpFunc = curFunc;
     curFunc += "_" + std::to_string(blockID) + std::to_string(stmtID);
     int startBranch = label++;
     int endBranch = label++;
@@ -602,6 +629,17 @@ antlrcpp::Any CodeEmission::visitForLoop(MiniDecafParser::ForLoopContext *ctx) {
     else if (ctx->expr(0)) 
     {
         visit(ctx->expr(0));
+
+
+        std::string t = ctx->expr(0)->getStart()->getText();
+    
+        if (!GlobStruct::getInstance().symbolTable[tmpFunc][t]->getType()->typeCheckLiteral("Int"))
+        {
+            std::cerr << "line " << ctx->start->getLine() << ": "
+                    << "[ERROR] Loop condition type error in for-loop.\n";
+            exit(1);
+        }
+
         exprNum = 0;
     }
 
@@ -639,6 +677,8 @@ antlrcpp::Any CodeEmission::visitForLoop(MiniDecafParser::ForLoopContext *ctx) {
     }
     int pos = curFunc.rfind('_');
     curFunc = curFunc.substr(0, pos);
+
+
     return retType::UNDEF;
 }
 
@@ -650,8 +690,25 @@ antlrcpp::Any CodeEmission::visitWhileLoop(MiniDecafParser::WhileLoopContext *ct
     breakTarget.push_back(endBranch);
     continueTarget.push_back(startBranch);
 
+    std::string t = ctx->expr()->getStart()->getText();
+    
+
+    if (GlobStruct::getInstance().symbolTable[curFunc].count(t) > 0)
+    {
+        if (!GlobStruct::getInstance().symbolTable[curFunc][t]->getType()->typeCheckLiteral("Int"))
+        {
+            std::cerr << "line " << ctx->start->getLine() << ": "
+                    << "[ERROR] Condition type error in while loop.\n";
+            exit(1);
+        }
+    }
+    
+
     code_ << ".L" << startBranch << ":\n";
     retType type = visit(ctx->expr());
+
+    
+
     code_ << popReg("a0");
 
     if (type == retType::LEFT) {
@@ -678,9 +735,17 @@ antlrcpp::Any CodeEmission::visitDoWhile(MiniDecafParser::DoWhileContext *ctx) {
 
     code_ << ".L" << startBranch << ":\n";
     visit(ctx->stmt());
-    retType type = visit(ctx->expr());
+    retType type = visit(ctx->expr()); 
 
-   
+    std::string t = ctx->expr()->getStart()->getText();
+
+    if (!GlobStruct::getInstance().symbolTable[curFunc][t]->getType()->typeCheckLiteral("Int"))
+    {
+        std::cerr << "line " << ctx->start->getLine() << ": "
+                  << "[ERROR] Loop condition type error in do-while.\n";
+        exit(1);
+    }
+    
     code_ << popReg("a0");
     if (type == retType::LEFT) {
         code_ << "\tlw a0, (a0)\n";
