@@ -130,6 +130,7 @@ antlrcpp::Any StackAlloc::visitBlock(MiniDecafParser::BlockContext *ctx) {
 
 antlrcpp::Any StackAlloc::visitGlobalArry(MiniDecafParser::GlobalArryContext *ctx) {
     std::string varName = ctx->Identifier()->getText();
+    // std::cout << "ddddddd" << varName << std::endl;
     if (GlobStruct::getInstance().funcTable.count(varName) > 0) 
     {
         std::cerr << "line " << ctx->start->getLine() << ": ";

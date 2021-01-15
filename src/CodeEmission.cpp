@@ -110,7 +110,7 @@ antlrcpp::Any CodeEmission::visitFuncCall(MiniDecafParser::FuncCallContext *ctx)
 
             if (type == retType::LEFT) 
             {
-                code_ << "\tlw a0, (t0)\n" 
+                code_ << "\tlw t0, (t0)\n" 
                         << pushReg("t0");
             }
             code_ << "\tmv a" << i << ", t0\n"
@@ -430,7 +430,7 @@ antlrcpp::Any CodeEmission::visitLor(MiniDecafParser::LorContext *ctx) {
 // global array is stored in .bss segment
 antlrcpp::Any CodeEmission::visitGlobalArry(MiniDecafParser::GlobalArryContext *ctx) {
     std::string varName = ctx->Identifier()->getText();
-    std::shared_ptr<Symbol> arr = GlobStruct::getInstance().symbolTable["global"][varName];
+    std::shared_ptr<Symbol> arr = GlobStruct::getInstance().symbolTable["globl"][varName];
     bss_ << ".globl " << varName << "\n"
          << varName << ":\n"
          << "\t.space " << 4 * arr.get()->getVolume() << "\n";

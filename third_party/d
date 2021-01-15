@@ -1,13 +1,16 @@
 .section .text
 .globl main
-fib:
+main:
 	sw ra, -4(sp)
 	addi sp, sp, -4
 	sw fp, -4(sp)
 	addi fp, sp, -4
-	addi sp, fp, -4
-	sw a0, -4(fp)
-	addi a0, fp, -4
+	addi sp, fp, 0
+	la a0, a
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	la a0, a
 	#push
 	addi sp, sp, -4
 	sw a0, (sp)
@@ -15,39 +18,46 @@ fib:
 	#push
 	addi sp, sp, -4
 	sw a0, (sp)
+	#pop
+	lw t1, (sp)
+	addi sp, sp, 4
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	li t2, 8
+	mul t1, t1, t2
+	add t0, t0, t1
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	li a0, 0
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	#pop
+	lw t1, (sp)
+	addi sp, sp, 4
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	li t2, 2
+	mul t1, t1, t2
+	add t0, t0, t1
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
 	#pop2
 	lw t0, 4(sp)
 	lw t1, (sp)
 	addi sp, sp, 8
-	lw t0, (t0)
 	sub t0, t0, t1
-	seqz a0, t0
-	#push
-	addi sp, sp, -4
-	sw a0, (sp)
-	addi a0, fp, -4
-	#push
-	addi sp, sp, -4
-	sw a0, (sp)
-	li a0, 1
-	#push
-	addi sp, sp, -4
-	sw a0, (sp)
-	#pop2
-	lw t0, 4(sp)
-	lw t1, (sp)
-	addi sp, sp, 8
-	lw t0, (t0)
-	sub t0, t0, t1
-	seqz a0, t0
-	#push
-	addi sp, sp, -4
-	sw a0, (sp)
-	#pop2
-	lw t0, 4(sp)
-	lw t1, (sp)
-	addi sp, sp, 8
-	or a0, t0, t1
+	snez a0, t0
 	#push
 	addi sp, sp, -4
 	sw a0, (sp)
@@ -56,22 +66,69 @@ fib:
 	addi sp, sp, 4
 	beqz a0, .L0
 	#return
-	addi a0, fp, -4
+	li a0, 1
 	#push
 	addi sp, sp, -4
 	sw a0, (sp)
 	#pop
 	lw a0, (sp)
 	addi sp, sp, 4
-	lw a0, (a0)
 	addi sp, fp, 4
 	lw ra, 0(sp)
 	lw fp, -4(sp)
 	ret
-	j .L1
 .L0:
+	la a0, a
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	la a0, a
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	li a0, 0
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	#pop
+	lw t1, (sp)
+	addi sp, sp, 4
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	li t2, 8
+	mul t1, t1, t2
+	add t0, t0, t1
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	#pop2
+	lw t0, 4(sp)
+	lw t1, (sp)
+	addi sp, sp, 8
+	sub t0, t0, t1
+	snez a0, t0
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	#pop
+	lw a0, (sp)
+	addi sp, sp, 4
+	beqz a0, .L1
 	#return
-	addi a0, fp, -4
+	li a0, 2
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	#pop
+	lw a0, (sp)
+	addi sp, sp, 4
+	addi sp, fp, 4
+	lw ra, 0(sp)
+	lw fp, -4(sp)
+	ret
+.L1:
+	la a0, a
 	#push
 	addi sp, sp, -4
 	sw a0, (sp)
@@ -79,28 +136,87 @@ fib:
 	#push
 	addi sp, sp, -4
 	sw a0, (sp)
-	#pop2
-	lw t0, 4(sp)
+	#pop
 	lw t1, (sp)
-	addi sp, sp, 8
-	lw t0, (t0)
-	sub a0, t0, t1
+	addi sp, sp, 4
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	li t2, 8
+	mul t1, t1, t2
+	add t0, t0, t1
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	li a0, 0
 	#push
 	addi sp, sp, -4
 	sw a0, (sp)
 	#pop
+	lw t1, (sp)
+	addi sp, sp, 4
+	#pop
 	lw t0, (sp)
 	addi sp, sp, 4
-	mv a0, t0
+	li t2, 2
+	mul t1, t1, t2
+	add t0, t0, t1
 	#push
 	addi sp, sp, -4
 	sw t0, (sp)
-	call fib
-	addi sp, sp, 8
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	la a0, a
 	#push
 	addi sp, sp, -4
 	sw a0, (sp)
-	addi a0, fp, -4
+	li a0, 1
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	#pop
+	lw t1, (sp)
+	addi sp, sp, 4
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	li t2, 8
+	mul t1, t1, t2
+	add t0, t0, t1
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	#pop2
+	lw t0, 4(sp)
+	lw t1, (sp)
+	addi sp, sp, 8
+	sub t0, t0, t1
+	snez a0, t0
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	#pop
+	lw a0, (sp)
+	addi sp, sp, 4
+	beqz a0, .L2
+	#return
+	li a0, 3
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	#pop
+	lw a0, (sp)
+	addi sp, sp, 4
+	addi sp, fp, 4
+	lw ra, 0(sp)
+	lw fp, -4(sp)
+	ret
+.L2:
+	la a0, a
 	#push
 	addi sp, sp, -4
 	sw a0, (sp)
@@ -108,24 +224,61 @@ fib:
 	#push
 	addi sp, sp, -4
 	sw a0, (sp)
-	#pop2
-	lw t0, 4(sp)
+	#pop
 	lw t1, (sp)
-	addi sp, sp, 8
-	lw t0, (t0)
-	sub a0, t0, t1
+	addi sp, sp, 4
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	li t2, 8
+	mul t1, t1, t2
+	add t0, t0, t1
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	li a0, 2
 	#push
 	addi sp, sp, -4
 	sw a0, (sp)
 	#pop
+	lw t1, (sp)
+	addi sp, sp, 4
+	#pop
 	lw t0, (sp)
 	addi sp, sp, 4
-	mv a0, t0
+	li t2, 2
+	mul t1, t1, t2
+	add t0, t0, t1
 	#push
 	addi sp, sp, -4
 	sw t0, (sp)
-	call fib
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	la a0, a
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	li a0, 2
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	li a0, 4
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	#pop2
+	lw t0, 4(sp)
+	lw t1, (sp)
 	addi sp, sp, 8
+	mul a0, t0, t1
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	li a0, 2
 	#push
 	addi sp, sp, -4
 	sw a0, (sp)
@@ -138,19 +291,145 @@ fib:
 	addi sp, sp, -4
 	sw a0, (sp)
 	#pop
+	lw t1, (sp)
+	addi sp, sp, 4
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	slli t1, t1, 2
+	add t0, t0, t1
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	#pop2
+	lw t0, 4(sp)
+	lw t1, (sp)
+	addi sp, sp, 8
+	sub t0, t0, t1
+	snez a0, t0
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	#pop
+	lw a0, (sp)
+	addi sp, sp, 4
+	beqz a0, .L3
+	#return
+	li a0, 4
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	#pop
 	lw a0, (sp)
 	addi sp, sp, 4
 	addi sp, fp, 4
 	lw ra, 0(sp)
 	lw fp, -4(sp)
 	ret
-.L1:
-main:
-	sw ra, -4(sp)
+.L3:
+	la a0, a
+	#push
 	addi sp, sp, -4
-	sw fp, -4(sp)
-	addi fp, sp, -4
-	addi sp, fp, -4
+	sw a0, (sp)
+	li a0, 3
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	#pop
+	lw t1, (sp)
+	addi sp, sp, 4
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	li t2, 8
+	mul t1, t1, t2
+	add t0, t0, t1
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	li a0, 3
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	#pop
+	lw t1, (sp)
+	addi sp, sp, 4
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	li t2, 2
+	mul t1, t1, t2
+	add t0, t0, t1
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	la a0, a
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	li a0, 3
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	#pop
+	lw t1, (sp)
+	addi sp, sp, 4
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	slli t1, t1, 2
+	add t0, t0, t1
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	li a0, 3
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	#pop
+	lw t1, (sp)
+	addi sp, sp, 4
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	lw t0, (t0)
+	slli t1, t1, 2
+	add t0, t0, t1
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	#pop
+	lw t0, (sp)
+	addi sp, sp, 4
+	#push
+	addi sp, sp, -4
+	sw t0, (sp)
+	#pop2
+	lw t0, 4(sp)
+	lw t1, (sp)
+	addi sp, sp, 8
+	sub t0, t0, t1
+	seqz a0, t0
+	#push
+	addi sp, sp, -4
+	sw a0, (sp)
+	#pop
+	lw a0, (sp)
+	addi sp, sp, 4
+	beqz a0, .L4
+	#return
 	li a0, 5
 	#push
 	addi sp, sp, -4
@@ -158,25 +437,13 @@ main:
 	#pop
 	lw a0, (sp)
 	addi sp, sp, 4
-	sw a0, -4(fp)
+	addi sp, fp, 4
+	lw ra, 0(sp)
+	lw fp, -4(sp)
+	ret
+.L4:
 	#return
-	addi a0, fp, -4
-	#push
-	addi sp, sp, -4
-	sw a0, (sp)
-	#pop
-	lw t0, (sp)
-	addi sp, sp, 4
-	lw a0, (t0)
-	#push
-	addi sp, sp, -4
-	sw t0, (sp)
-	mv a0, t0
-	#push
-	addi sp, sp, -4
-	sw t0, (sp)
-	call fib
-	addi sp, sp, 8
+	li a0, 0
 	#push
 	addi sp, sp, -4
 	sw a0, (sp)
@@ -189,3 +456,7 @@ main:
 	ret
 .section .data
 .section .bss
+.globl a
+a:
+	.space 64
+
