@@ -27,7 +27,11 @@ public:
 
     virtual antlrcpp::Any visitGlobal(MiniDecafParser::GlobalContext *context) = 0;
 
+    virtual antlrcpp::Any visitGlobalArry(MiniDecafParser::GlobalArryContext *context) = 0;
+
     virtual antlrcpp::Any visitVarDefine(MiniDecafParser::VarDefineContext *context) = 0;
+
+    virtual antlrcpp::Any visitLocalArry(MiniDecafParser::LocalArryContext *context) = 0;
 
     virtual antlrcpp::Any visitRetStmt(MiniDecafParser::RetStmtContext *context) = 0;
 
@@ -85,7 +89,13 @@ public:
 
     virtual antlrcpp::Any visitCast(MiniDecafParser::CastContext *context) = 0;
 
+    virtual antlrcpp::Any visitPostfix_op(MiniDecafParser::Postfix_opContext *context) = 0;
+
+    virtual antlrcpp::Any visitArryIndex(MiniDecafParser::ArryIndexContext *context) = 0;
+
     virtual antlrcpp::Any visitFuncCall(MiniDecafParser::FuncCallContext *context) = 0;
+
+    virtual antlrcpp::Any visitPrimary_op(MiniDecafParser::Primary_opContext *context) = 0;
 
     virtual antlrcpp::Any visitParen(MiniDecafParser::ParenContext *context) = 0;
 

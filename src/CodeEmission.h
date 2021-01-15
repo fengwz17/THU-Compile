@@ -29,8 +29,11 @@ class CodeEmission : public MiniDecafBaseVisitor {
             
         antlrcpp::Any visitInteger(MiniDecafParser::IntegerContext *ctx);
         antlrcpp::Any visitIdentifier(MiniDecafParser::IdentifierContext *ctx);
+        antlrcpp::Any visitArryIndex(MiniDecafParser::ArryIndexContext *ctx);
         antlrcpp::Any visitVarDefine(MiniDecafParser::VarDefineContext *ctx);
         antlrcpp::Any visitAssign(MiniDecafParser::AssignContext *ctx);
+        antlrcpp::Any visitGlobalArry(MiniDecafParser::GlobalArryContext *ctx);
+        antlrcpp::Any visitLocalArry(MiniDecafParser::LocalArryContext *ctx);
         antlrcpp::Any visitGlobal(MiniDecafParser::GlobalContext *ctx);
         antlrcpp::Any visitCast(MiniDecafParser::CastContext *ctx);
    
@@ -84,5 +87,5 @@ class CodeEmission : public MiniDecafBaseVisitor {
         /*
             Specify return type of each operation
         */
-        enum retType {LEFT, RIGHT, UNDEF};
+        enum retType {LEFT, RIGHT, PTR, ARR, UNDEF};
 };

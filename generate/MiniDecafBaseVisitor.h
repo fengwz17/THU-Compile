@@ -31,7 +31,15 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitGlobalArry(MiniDecafParser::GlobalArryContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitVarDefine(MiniDecafParser::VarDefineContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitLocalArry(MiniDecafParser::LocalArryContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -147,7 +155,19 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitPostfix_op(MiniDecafParser::Postfix_opContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitArryIndex(MiniDecafParser::ArryIndexContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitFuncCall(MiniDecafParser::FuncCallContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitPrimary_op(MiniDecafParser::Primary_opContext *ctx) override {
     return visitChildren(ctx);
   }
 

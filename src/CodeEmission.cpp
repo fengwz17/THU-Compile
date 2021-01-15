@@ -40,11 +40,15 @@ antlrcpp::Any CodeEmission::visitFunc(MiniDecafParser::FuncContext *ctx) {
         //         capacity += varTable[var.first].size();
         //     }
         // }
-        for (auto& var : GlobStruct::getInstance().symbolTable) 
+        for (auto& func : GlobStruct::getInstance().symbolTable) 
         {
-            if (var.first.substr(0, curFunc.length()) == curFunc) 
+            if (func.first.substr(0, curFunc.length()) == curFunc) 
             {
-                capacity += GlobStruct::getInstance().symbolTable[var.first].size();
+                // capacity += GlobStruct::getInstance().symbolTable[var.first].size();
+                for (auto& var : func.second) 
+                {
+                    capacity += var.second.get()->getVolume();
+                }
             }
         }
 
@@ -102,11 +106,15 @@ antlrcpp::Any CodeEmission::visitFuncCall(MiniDecafParser::FuncCallContext *ctx)
             // visit(ctx->expr(i));
             // code_ << "\tmv a" << i << ", a0\n";
             retType type = visit(ctx->expr(i));
-            if (type == retType::LEFT) {
-                code_ << popReg("a0")
-                      << "\tlw a0, (a0)\n";
+            code_ << popReg("t0");
+
+            if (type == retType::LEFT) 
+            {
+                code_ << "\tlw a0, (t0)\n" 
+                        << pushReg("t0");
             }
-            code_ << "\tmv a" << i << ", a0\n";
+            code_ << "\tmv a" << i << ", t0\n"
+                    << pushReg("t0");
         }
     }
     code_ << "\tcall " << ctx->Identifier()->getText() << "\n"
@@ -136,6 +144,7 @@ antlrcpp::Any CodeEmission::visitBlock(MiniDecafParser::BlockContext *ctx) {
 // Visit ReturnStmt node, son of Stmt node
 antlrcpp::Any CodeEmission::visitRetStmt(MiniDecafParser::RetStmtContext *ctx) {
     retType type = visit(ctx->expr());
+    
     std::string retTypeStr = ctx->expr()->getStart()->getText();
     if (retTypeStr == "&")
     {
@@ -229,7 +238,12 @@ antlrcpp::Any CodeEmission::visitParen(MiniDecafParser::ParenContext *ctx) {
 antlrcpp::Any CodeEmission::visitAddSub(MiniDecafParser::AddSubContext *ctx) {
     retType Expr1 = visit(ctx->add(0));
     retType Expr2 = visit(ctx->add(1));
-  
+
+    std::shared_ptr<Type> lType = GlobStruct::getInstance().typeQueue.front();
+    GlobStruct::getInstance().typeQueue.pop();
+    std::shared_ptr<Type> rType = GlobStruct::getInstance().typeQueue.front();
+    GlobStruct::getInstance().typeQueue.pop();
+
     code_ << popReg("t0", "t1");
     if (Expr1 == retType::LEFT) 
     {
@@ -239,6 +253,16 @@ antlrcpp::Any CodeEmission::visitAddSub(MiniDecafParser::AddSubContext *ctx) {
     {
         code_ << "\tlw t1, (t1)\n";
     }
+
+    if (lType.get()->getType() == "Intptr" && rType.get()->getType() == "Int") 
+    {
+        code_ << "\tslli t1, t1, 2\n";
+    } 
+    else if (rType.get()->getType() == "Intptr" && lType.get()->getType() == "Int") 
+    {
+        code_ << "\tslli t0, t0, 2\n";
+    }
+
     if (ctx->Addition()) 
     {
         code_ << "\tadd a0, t0, t1\n"
@@ -247,8 +271,14 @@ antlrcpp::Any CodeEmission::visitAddSub(MiniDecafParser::AddSubContext *ctx) {
     } 
     else if (ctx->Minus()) 
     {
-        code_ << "\tsub a0, t0, t1\n"
-              << pushReg("a0");
+        code_ << "\tsub a0, t0, t1\n";
+
+        if (lType.get()->getType() == "Intptr" && rType.get()->getType() == "Intptr") 
+        {
+            code_ << "\tsrli a0, a0, 2\n";
+        }
+
+        code_ << pushReg("a0");
         return retType::RIGHT;
     }
     return retType::UNDEF;
@@ -397,6 +427,22 @@ antlrcpp::Any CodeEmission::visitLor(MiniDecafParser::LorContext *ctx) {
     return retType::RIGHT;
 }
 
+// global array is stored in .bss segment
+antlrcpp::Any CodeEmission::visitGlobalArry(MiniDecafParser::GlobalArryContext *ctx) {
+    std::string varName = ctx->Identifier()->getText();
+    std::shared_ptr<Symbol> arr = GlobStruct::getInstance().symbolTable["global"][varName];
+    bss_ << ".globl " << varName << "\n"
+         << varName << ":\n"
+         << "\t.space " << 4 * arr.get()->getVolume() << "\n";
+    return retType::UNDEF;
+}
+
+antlrcpp::Any CodeEmission::visitLocalArry(MiniDecafParser::LocalArryContext *ctx) {
+    return retType::UNDEF;
+}
+
+
+
 
 antlrcpp::Any CodeEmission::visitGlobal(MiniDecafParser::GlobalContext *ctx) {
     std::string varName = ctx->Identifier()->getText();
@@ -436,6 +482,43 @@ antlrcpp::Any CodeEmission::visitVarDefine(MiniDecafParser::VarDefineContext *ct
     return retType::UNDEF;
 }
 
+
+antlrcpp::Any CodeEmission::visitArryIndex(MiniDecafParser::ArryIndexContext *ctx) {
+    retType lType = visit(ctx->postfix());
+    retType indexType = visit(ctx->expr());
+    std::shared_ptr<Type> postType = GlobStruct::getInstance().typeQueue.front();
+    std::shared_ptr<Type> baseType = postType.get()->getBaseType();
+    GlobStruct::getInstance().typeQueue.pop();
+    code_ << popReg("t1");
+    code_ << popReg("t0");
+    if (indexType == retType::LEFT) 
+    {
+        code_ << "\tlw t1, (t1)\n";
+    }
+    if (lType == retType::LEFT) 
+    {
+        code_ << "\tlw t0, (t0)\n";
+    }
+    if (postType.get()->getType() == "Array") 
+    {
+        code_ << "\tli t2, " + std::to_string(baseType.get()->getSize()) << "\n"
+              << "\tmul t1, t1, t2\n"
+              << "\tadd t0, t0, t1\n";
+    } 
+    else if (postType.get()->getType() == "Intptr") 
+    {
+        code_ << "\tslli t1, t1, 2\n"
+              << "\tadd t0, t0, t1\n";
+    }
+    code_ << pushReg("t0");
+    if (postType.get()->getBaseType()->getType() == "Array") 
+    {
+        return retType::RIGHT;
+    }
+    return retType::LEFT;
+}
+
+
 // read var from stack
 antlrcpp::Any CodeEmission::visitIdentifier(MiniDecafParser::IdentifierContext *ctx) {
     std::string varName = ctx->Identifier()->getText();
@@ -467,6 +550,11 @@ antlrcpp::Any CodeEmission::visitIdentifier(MiniDecafParser::IdentifierContext *
         code_ << "\taddi a0, fp, " << -4 - 4 * GlobStruct::getInstance().symbolTable[tmpFunc][varName].get()->getOffset() << "\n"
               << pushReg("a0");
         // std::cout << "tmp varTable: " << tmpFunc << " " << varName << " " << varTable[tmpFunc][varName] << '\n';
+        if (GlobStruct::getInstance().symbolTable[tmpFunc][varName].get()->getType()->getType() == "Array") 
+        {
+            return retType::RIGHT;
+        }
+        
         return retType::LEFT;
     }
 
@@ -474,6 +562,11 @@ antlrcpp::Any CodeEmission::visitIdentifier(MiniDecafParser::IdentifierContext *
     {
         code_ << "\tla a0, " << varName << "\n"
               << pushReg("a0");
+    }
+
+    if (GlobStruct::getInstance().symbolTable["globl"][varName].get()->getType()->getType() == "Array") 
+    {
+        return retType::RIGHT;
     }
    
     return retType::LEFT;
@@ -551,7 +644,8 @@ antlrcpp::Any CodeEmission::visitIfElse(MiniDecafParser::IfElseContext *ctx) {
 
     code_ << popReg("a0");
 
-    if (type == retType::LEFT) {
+    if (type == retType::LEFT) 
+    {
         code_ << "\tlw a0, (a0)\n";
     }
 
@@ -663,6 +757,7 @@ antlrcpp::Any CodeEmission::visitForLoop(MiniDecafParser::ForLoopContext *ctx) {
     if (ctx->expr(exprNum + 2)) 
     {
         visit(ctx->expr(exprNum + 2));
+        code_ << popReg("t0");
     }
 
     code_ << "\tj .L" << startBranch << "\n"
@@ -711,7 +806,8 @@ antlrcpp::Any CodeEmission::visitWhileLoop(MiniDecafParser::WhileLoopContext *ct
 
     code_ << popReg("a0");
 
-    if (type == retType::LEFT) {
+    if (type == retType::LEFT) 
+    {
         code_ << "\tlw a0, (a0)\n";
     }
 

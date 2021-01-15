@@ -18,33 +18,22 @@ antlrcpp::Any StackAlloc::visitFunc(MiniDecafParser::FuncContext *ctx) {
     blockID = 0;
     stmtID = 0;
     offset = 0;
-    
-    if (GlobStruct::getInstance().symbolTable["globl"].count(curFunc) > 0) 
-    {
-        std::cerr << "line " << ctx->start->getLine() << ": ";
-        std::cerr << "[ERROR] Conflits of function " << curFunc << " with variable defined in line " + std::to_string(GlobStruct::getInstance().symbolTable["globl"][curFunc].get()->getLineNum()) + "\n";
-        exit(1);
-    }
 
-    // // funcDeName.insert(curFunc);
-    // if (varTable["globl"].count(curFunc) > 0)
+    // // GlobStruct& instance = GlobStruct::getInstance();
+    // std::string lineStr = std::to_string(GlobStruct::getInstance().symbolTable["globl"][curFunc].get()->getLineNum());
+    
+    
+    // if (GlobStruct::getInstance().symbolTable["globl"].count(curFunc) > 0) 
     // {
-    //     std::cerr << "[ERROR] funcName and globl conflict\n";
+    //     std::cerr << "line " << ctx->start->getLine() << ": ";
+    //     std::cerr << "[ERROR] Conflits of function " << curFunc 
+    //         << " with variable defined in line " + lineStr + "\n";
     //     exit(1);
     // }
 
     // decl
     if (ctx->Semicolon()) 
-    {
-        // for (auto i = 1; i < ctx->Identifier().size(); ++i) 
-        // {
-        //     // std::string varName = ctx->Identifier(i)->getText();
-        //     // std::cout << "name: " << curFunc << " " << funcParaTable[curFunc]++ << '\n';
-        //     funcParaTable[curFunc]++;
-        // }
-   
-        // varTable[curFunc]["$"] = 0;
-    
+    {    
         std::vector<std::shared_ptr<Type> > argType;
         for (auto i = 1; i < ctx->type().size(); ++i) 
         {
@@ -56,43 +45,6 @@ antlrcpp::Any StackAlloc::visitFunc(MiniDecafParser::FuncContext *ctx) {
     // definition
     else
     {
-        // if (varTable.count(curFunc) > 0 && varTable[curFunc]["$"] == 1) 
-        // {
-        //     std::cerr << "[ERROR] function redefined " << curFunc << "\n";
-        //     exit(1);
-        // } 
-        /*
-            varTable[curFunc]["$"] = 1;
-            if (funcParaTable.count(curFunc) > 0)
-            {
-                if (funcParaTable[curFunc] != ctx->Identifier().size() - 1)
-                {
-                    std::cerr << "[ERROR] Conflict decl and def \n";
-                    exit(1);
-                } 
-            }
-            else
-            {
-                for (auto i = 1; i < ctx->Identifier().size(); ++i) 
-                {
-                    funcParaTable[curFunc]++;
-                }
-            }
-            
-            std::set<std::string> tmpVar;
-            for (auto i = 1; i < ctx->Identifier().size(); ++i) 
-            {
-                std::string varName = ctx->Identifier(i)->getText();
-                if (tmpVar.count(varName) > 0)
-                {
-                    std::cerr << "[ERROR] Conflict parameters \n";
-                    exit(1);
-                }
-                tmpVar.insert(varName);
-                varTable[curFunc][varName] = offset++;
-            }
-        */
-
         if (GlobStruct::getInstance().GlobStruct::getInstance().funcTable.count(curFunc) > 0)
         {
             if (GlobStruct::getInstance().funcTable[curFunc].get()->initialized()) 
@@ -176,29 +128,79 @@ antlrcpp::Any StackAlloc::visitBlock(MiniDecafParser::BlockContext *ctx) {
     return type;
 }
 
+antlrcpp::Any StackAlloc::visitGlobalArry(MiniDecafParser::GlobalArryContext *ctx) {
+    std::string varName = ctx->Identifier()->getText();
+    if (GlobStruct::getInstance().funcTable.count(varName) > 0) 
+    {
+        std::cerr << "line " << ctx->start->getLine() << ": ";
+        std::cerr << "[ERROR] Conflits of array " << varName << "with function\n"; 
+        exit(1);
+    }
+    if (GlobStruct::getInstance().symbolTable["globl"].count(varName) > 0) 
+    {
+        std::cerr << "line " << ctx->start->getLine() << ": ";
+        std::cerr << "[ERROR] Redefinition of global variable " << varName << "\n";
+        exit(1);
+    }
+
+    // Array dimension cannot be 0
+    int volume = 1;
+    std::shared_ptr<Type> baseType = visit(ctx->type());
+    baseType.get()->setValueType(1);
+
+    for (int i = ctx->Integer().size()-1; i >= 0; --i) 
+    {
+        int arrDim = std::stoi(ctx->Integer(i)->getText());
+        if (arrDim == 0) 
+        {
+            std::cerr << "line " << ctx->start->getLine() << ": ";
+            std::cerr << "[ERROR] Array " << varName << " has 0 dimension\n";
+            exit(1);
+        }
+        volume *= arrDim;
+        baseType = std::make_shared<ArrayType>(baseType, volume);
+    }
+
+    GlobStruct::getInstance().symbolTable["globl"][varName] = std::make_shared<Symbol>(varName, 0, baseType, ctx->start->getLine(), volume);
+    std::shared_ptr<Type> type = std::make_shared<NoneType>();
+    return type;
+}
+
+antlrcpp::Any StackAlloc::visitLocalArry(MiniDecafParser::LocalArryContext *ctx) {
+    std::string varName = ctx->Identifier()->getText();
+    if (GlobStruct::getInstance().symbolTable[curFunc].count(varName) > 0) 
+    {
+        std::cerr << "line " << ctx->start->getLine() << ": ";
+        std::cerr << "[ERROR] Redefinition of global variable " << varName << "\n";
+        exit(1);
+    }
+
+    // Array dimension cannot be 0
+    int volume = 1;
+    std::shared_ptr<Type> baseType = visit(ctx->type());
+    
+    baseType.get()->setValueType(1);
+    for (int i = ctx->Integer().size()-1; i >= 0; --i) 
+    {
+        int arrDim = std::stoi(ctx->Integer(i)->getText());
+        if (arrDim == 0) 
+        {
+            std::cerr << "line " << ctx->start->getLine() << ": ";
+            std::cerr << "[ERROR] Array " << varName << " has 0 dimension\n";
+            exit(1);
+        }
+        volume *= arrDim;
+        baseType = std::make_shared<ArrayType>(baseType, arrDim);
+    }
+    offset += volume;
+    GlobStruct::getInstance().symbolTable[curFunc][varName] = std::make_shared<Symbol>(varName, offset-1, baseType, ctx->start->getLine(), volume);
+    std::shared_ptr<Type> type = std::make_shared<NoneType>();
+    return type;
+}
+
+
 antlrcpp::Any StackAlloc::visitGlobal(MiniDecafParser::GlobalContext *ctx) {
     std::string varName = ctx->Identifier()->getText();
-    // if (funcDeName.count(varName) > 0)
-    // {
-    //     std::cerr << "[ERROR] Global and funcName conflict\n";
-    //     exit(1);
-    // }
-    // else
-    // {
-    //     funcDeName.insert(varName);
-    // }
-    // if (varTable.count(varName) > 0)
-    // {
-    //     std::cerr << "[ERROR] Global and funcName conflict\n";
-    //     exit(1);
-    // }
-    
-    // if (varTable["globl"].count(varName) > 0) 
-    // {
-    //     std::cerr << "[ERROR] Global variable " << varName << "redifined \n";
-    //     exit(1);
-    // }
-    // varTable["globl"][varName] = 0;
 
     if (GlobStruct::getInstance().funcTable.count(varName) > 0) 
     {
@@ -290,36 +292,33 @@ antlrcpp::Any StackAlloc::visitAssign(MiniDecafParser::AssignContext *ctx) {
         exit(1);
     }
     return lType;
-
-    // std::string tmpFunc = curFunc;
-    // // Search the symbol table from inner scope to the outer, for the target symbol
-    // for (int i = 0; i <= stmtID; i++) 
-    // {
-    //     if (varTable[tmpFunc].count(varName) == 0) 
-    //     {
-    //         int pos = tmpFunc.rfind('_');
-    //         tmpFunc = tmpFunc.substr(0, pos);
-    //         continue;
-    //     }
-    //     if (varTable[curFunc].count(varName) == 0) 
-    //     {
-    //         varTable[curFunc][varName + "#"] = 0;
-    //     }
-    //     return retType::INT;
-    // }
-
-    // if (varTable["globl"].count(varName) == 0)
-    // {
-    //     std::cerr << "[ERROR] Using: Variable " << varName << " have not been defined\n";
-    //     exit(1);
-    // }
-    // return retType::INT;
 }
 
 antlrcpp::Any StackAlloc::visitForLoop(MiniDecafParser::ForLoopContext *ctx) {
     stmtID++;
     curFunc += "_" + std::to_string(blockID) + std::to_string(stmtID);
-    visitChildren(ctx);
+    
+    int exprBase = -1;
+
+    if (ctx->declaration()) 
+    {
+        visit(ctx->declaration());
+    }
+    else if (ctx->expr(0)) 
+    {
+        visit(ctx->expr(0));
+        exprBase = 0;
+    }
+    if (ctx->expr(exprBase + 1)) 
+    {
+        visit(ctx->expr(exprBase + 1));
+    } 
+    visit(ctx->stmt());
+    if (ctx->expr(exprBase + 2)) 
+    {
+        visit(ctx->expr(exprBase + 2));
+    }
+
     stmtID--;
     if (stmtID == 0) 
     {
@@ -346,7 +345,52 @@ antlrcpp::Any StackAlloc::visitEqual(MiniDecafParser::EqualContext *ctx) {
     return type;
 }
 
-//@brief: Most of the work is type checking
+antlrcpp::Any StackAlloc::visitAddSub(MiniDecafParser::AddSubContext *ctx) {
+    std::shared_ptr<Type> add1 = visit(ctx->add(0));
+    std::shared_ptr<Type> add2 = visit(ctx->add(1));
+    GlobStruct::getInstance().typeQueue.push(add1);
+    GlobStruct::getInstance().typeQueue.push(add2);
+    std::shared_ptr<Type> ansType = std::make_shared<NoneType>();
+
+    if (add1.get()->getType() == "Intptr" && add2.get()->getType() == "Intptr") 
+    {
+        if (ctx->Addition()) 
+        {
+            std::cerr << "line " << ctx->start->getLine() << ": ";
+            std::cerr << "[ERROR] Add operation between pointers is not supported\n";
+            exit(1);
+        } 
+        else if (ctx->Minus()) 
+        {
+            ansType = std::make_shared<IntType>();
+        }
+    } 
+    else if (add1.get()->getType() == "Intptr") 
+    {
+        ansType = std::make_shared<IntptrType>(add1.get()->getStarNum());
+    } 
+    else if (add2.get()->getType() == "Intptr") 
+    {
+        if (ctx->Addition()) 
+        {
+            ansType = std::make_shared<IntptrType>(add2.get()->getStarNum());
+        }
+        
+        else if (ctx->Minus()) 
+        {
+            std::cerr << "line " << ctx->start->getLine() << ": ";
+            std::cerr << "[ERROR] Integer minus pointer is not supported\n";
+            exit(1);
+        }
+    } 
+    else 
+    {
+        ansType = std::make_shared<IntType>();
+    }
+    return ansType;
+}
+
+
 antlrcpp::Any StackAlloc::visitUnaryOp(MiniDecafParser::UnaryOpContext *ctx) {
     
     // error: if (ctx->Exclamation() || ctx->Minus() || ctx->Tilde()) 
@@ -401,25 +445,44 @@ antlrcpp::Any StackAlloc::visitUnaryOp(MiniDecafParser::UnaryOpContext *ctx) {
     return type;
 }
 
+antlrcpp::Any StackAlloc::visitArryIndex(MiniDecafParser::ArryIndexContext *ctx) {
+    std::shared_ptr<Type> postType = visit(ctx->postfix());
+    std::shared_ptr<Type> type = visit(ctx->expr());
+    GlobStruct::getInstance().typeQueue.push(postType);
+    std::shared_ptr<Type> returnType;
+    if (type.get()->getType() != "Int") 
+    {
+        std::cerr << "line " << ctx->start->getLine() << ": ";
+        std::cerr << "[ERROR] Array index must be integer\n";
+        exit(1);
+    }
+    if (postType.get()->getType() == "Intptr") 
+    {
+        int starNum = postType.get()->getStarNum();
+        if (starNum == 1) 
+        {
+            type = std::make_shared<IntType>(1);
+        } 
+        else 
+        {
+            type = std::make_shared<IntptrType>(starNum - 1, 1);
+        }
+        return type;
+    } 
+    else 
+    {
+        return postType.get()->getBaseType();
+    }
+}
+
 antlrcpp::Any StackAlloc::visitCast(MiniDecafParser::CastContext *ctx) {
     std::shared_ptr<Type> dst = visit(ctx->type());
     std::shared_ptr<Type> src = visit(ctx->unary());
-    return dst.get()->typeCast(0);
+    return dst.get()->typeCast(src.get()->getValueType());
 }
 
 antlrcpp::Any StackAlloc::visitFuncCall(MiniDecafParser::FuncCallContext *ctx) {
-    // std::string funcName = ctx->Identifier()->getText();
-    // if (funcParaTable[funcName] != ctx->expr().size())
-    // {
-    //     std::cerr << funcName << " " << funcParaTable[funcName] << " " << ctx->expr().size() << '\n';
-    //     exit(1);
-    // }
-    // if (varTable.count(funcName) == 0) 
-    // {
-    //     std::cerr << "[ERROR] Using: function " << curFunc << " have not been defined\n";
-    //     exit(1);
-    // }
-    // return retType::UNDEF;
+    
     std::string funcName = ctx->Identifier()->getText();
     if (GlobStruct::getInstance().funcTable.count(funcName) == 0) 
     {
@@ -440,7 +503,7 @@ antlrcpp::Any StackAlloc::visitFuncCall(MiniDecafParser::FuncCallContext *ctx) {
             exit(1);
         }
     }
-    visitChildren(ctx);
+    // visitChildren(ctx);
     return GlobStruct::getInstance().funcTable[funcName].get()->getRetType();
 }
 
@@ -452,28 +515,6 @@ antlrcpp::Any StackAlloc::visitIdentifier(MiniDecafParser::IdentifierContext *ct
     std::string varName = ctx->Identifier()->getText();
     std::string tmp = curFunc;
 
-    // for (int i = 0; i <= stmtID; i++) 
-    // {
-    //     if (varTable[tmp].count(varName) == 0) 
-    //     {
-    //         int pos = tmp.rfind('_');
-    //         tmp = tmp.substr(0, pos);
-    //         continue;
-    //     }
-    
-    //     if (varTable[curFunc].count(varName) == 0) 
-    //     {
-    //         varTable[curFunc][varName + "#"] = 0;
-    //     }
-    //     return retType::INT;
-    // }
-
-    // if (varTable["globl"].count(varName) == 0)
-    // {
-    //     std::cerr << "[ERROR] Using: Variable " << varName << " have not been defined\n";
-    //     exit(1);
-    // }
-    // return retType::INT;
     for (int i = 0; i <= stmtID; ++i) 
     {
         if (GlobStruct::getInstance().symbolTable[tmp].count(varName) == 0) 
@@ -550,7 +591,8 @@ antlrcpp::Any StackAlloc::visitCompare(MiniDecafParser::CompareContext *ctx) {
 
 antlrcpp::Any StackAlloc::visitLor(MiniDecafParser::LorContext *ctx) {
     std::shared_ptr<Type> lType = visit(ctx->logical_or(0)), rType = visit(ctx->logical_or(1));
-    if (!(lType.get()->getType() == "Int") || !(rType.get()->getType() == "Int")) {
+    if (!(lType.get()->getType() == "Int") || !(rType.get()->getType() == "Int")) 
+    {
         std::cerr << "line " << ctx->start->getLine() << ": ";
         std::cerr << "[ERROR] Bad great or less type\n";
         exit(1);
@@ -561,7 +603,8 @@ antlrcpp::Any StackAlloc::visitLor(MiniDecafParser::LorContext *ctx) {
 
 antlrcpp::Any StackAlloc::visitLand(MiniDecafParser::LandContext *ctx) {
     std::shared_ptr<Type> lType = visit(ctx->logical_and(0)), rType = visit(ctx->logical_and(1));
-    if (!(lType.get()->getType() == "Int") || !(rType.get()->getType() == "Int")) {
+    if (!(lType.get()->getType() == "Int") || !(rType.get()->getType() == "Int")) 
+    {
         std::cerr << "line " << ctx->start->getLine() << ": ";
         std::cerr << "[ERROR] Bad great or less type\n";
         exit(1);

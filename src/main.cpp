@@ -39,7 +39,7 @@ int main(int argc, const char* argv[]) {
     varTab varID2;
     
     alloc.visitProg(treeNode);
-    
+    // std::cout << "ddd" << std::endl;
     string asmCode = codeEmission.visitProg(treeNode);
    
     cout << asmCode << endl;

@@ -18,12 +18,18 @@ blockItem
 globalDecl
     : type Identifier ('=' Integer)?
     # global
+
+    | type Identifier ('[' Integer ']')+
+    # globalArry
     ;
 
 
 declaration
     : type Identifier ('=' expr)?
     # varDefine
+
+    | type Identifier ('[' Integer ']')+
+    # localArry
     ;
 
 stmt    
@@ -130,10 +136,23 @@ unary
     | '(' type ')' unary                                           
     # cast
 
-    | Identifier '(' (expr ',')* (expr)? ')'                        
-    # funcCall
+    | postfix
+    # postfix_op
+    ;
 
-    | '(' expr ')'                                                  
+postfix
+    : Identifier '(' (expr ',')* (expr)? ')'                        
+    # funcCall
+    
+    | postfix '[' expr ']'
+    # arryIndex
+
+    | primary
+    # primary_op
+    ;
+
+primary
+    : '(' expr ')'                                                  
     # paren
 
     | Identifier                                                    
