@@ -615,14 +615,6 @@ antlrcpp::Any StackAlloc::visitIdentifier(MiniDecafParser::IdentifierContext *ct
 }
 
 antlrcpp::Any StackAlloc::visitInteger(MiniDecafParser::IntegerContext *ctx) {
-    std::string strLiteral = ctx->Integer()->getText();
-    long long numLiteral = std::stoll(strLiteral);
-    // Solve the badint error
-    if (numLiteral > INT32_MAX) {
-        std::cerr << "line " << ctx->start->getLine() << ": "
-                  << "[ERROR] Constant out of INT range.\n";
-        exit(1);
-    }
     std::shared_ptr<Type> type = std::make_shared<IntType>(); 
     return type;
 }
