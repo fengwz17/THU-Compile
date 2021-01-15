@@ -143,6 +143,7 @@ antlrcpp::Any CodeEmission::visitBlock(MiniDecafParser::BlockContext *ctx) {
 
 // Visit ReturnStmt node, son of Stmt node
 antlrcpp::Any CodeEmission::visitRetStmt(MiniDecafParser::RetStmtContext *ctx) {
+    code_ << "\t#return\n";
     retType type = visit(ctx->expr());
     
     std::string retTypeStr = ctx->expr()->getStart()->getText();
@@ -422,7 +423,6 @@ antlrcpp::Any CodeEmission::visitLor(MiniDecafParser::LorContext *ctx) {
     }
 
     code_ << "\tor a0, t0, t1\n"
-          << "\tsnez a0, a0\n"
           << pushReg("a0");
     return retType::RIGHT;
 }
@@ -609,6 +609,7 @@ antlrcpp::Any CodeEmission::visitAssign(MiniDecafParser::AssignContext *ctx) {
 
     // // Load the value from stack
     // return retType::INT;
+    code_ << "\t#assign\n";
     retType lType = visit(ctx->unary());
     retType rType = visit(ctx->expr());
     code_ << popReg("t1");
@@ -883,15 +884,15 @@ antlrcpp::Any CodeEmission::visitCast(MiniDecafParser::CastContext *ctx) {
 
 std::string CodeEmission::pushReg(std::string reg) 
 {
-    return "\taddi sp, sp, -4\n\tsw " + reg + ", 0(sp)\n";
+    return "\t#push\n\taddi sp, sp, -4\n\tsw " + reg + ", (sp)\n";
 }
 
 std::string CodeEmission::popReg(std::string reg) 
 {
-    return "\tlw " + reg + ", 0(sp)\n\taddi sp, sp, 4\n";
+    return "\t#pop\n\tlw " + reg + ", (sp)\n\taddi sp, sp, 4\n";
 }
 
 std::string CodeEmission::popReg(std::string reg0, std::string reg1) 
 {
-    return "\tlw " + reg0 + ", 4(sp)\n\tlw " + reg1 + ", 0(sp)\n\taddi sp, sp, 8\n";
+    return "\t#pop2\n\tlw " + reg0 + ", 4(sp)\n\tlw " + reg1 + ", (sp)\n\taddi sp, sp, 8\n";
 }

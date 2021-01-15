@@ -54,7 +54,7 @@ fib:
 	#pop
 	lw a0, (sp)
 	addi sp, sp, 4
-	beqz a0, label_0
+	beqz a0, .L0
 	#return
 	addi a0, fp, -4
 	#push
@@ -65,11 +65,11 @@ fib:
 	addi sp, sp, 4
 	lw a0, (a0)
 	addi sp, fp, 4
-	lw ra, (sp)
+	lw ra, 0(sp)
 	lw fp, -4(sp)
 	ret
-	j label_1
-label_0:
+	j .L1
+.L0:
 	#return
 	addi a0, fp, -4
 	#push
@@ -97,8 +97,7 @@ label_0:
 	sw t0, (sp)
 	call fib
 	addi sp, sp, 8
-	
-    #push
+	#push
 	addi sp, sp, -4
 	sw a0, (sp)
 	addi a0, fp, -4
@@ -142,10 +141,10 @@ label_0:
 	lw a0, (sp)
 	addi sp, sp, 4
 	addi sp, fp, 4
-	lw ra, (sp)
+	lw ra, 0(sp)
 	lw fp, -4(sp)
 	ret
-label_1:
+.L1:
 main:
 	sw ra, -4(sp)
 	addi sp, sp, -4
@@ -168,7 +167,7 @@ main:
 	#pop
 	lw t0, (sp)
 	addi sp, sp, 4
-	lw t0, (t0)
+	lw a0, (t0)
 	#push
 	addi sp, sp, -4
 	sw t0, (sp)
@@ -185,9 +184,8 @@ main:
 	lw a0, (sp)
 	addi sp, sp, 4
 	addi sp, fp, 4
-	lw ra, (sp)
+	lw ra, 0(sp)
 	lw fp, -4(sp)
 	ret
 .section .data
 .section .bss
-
