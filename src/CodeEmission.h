@@ -4,12 +4,12 @@
 #include <string>
 #include <iostream>
 
-using symInTab = std::map<std::string, std::map<std::string, int>>; 
-using varTab = std::map<std::string, int>;
+// using symInTab = std::map<std::string, std::map<std::string, int>>; 
+// using varTab = std::map<std::string, int>;
 
 class CodeEmission : public MiniDecafBaseVisitor {
     public:
-        antlrcpp::Any visitProg(MiniDecafParser::ProgContext *ctx); //, varTab& varID);
+        antlrcpp::Any visitProg(MiniDecafParser::ProgContext *ctx);
         antlrcpp::Any visitFunc(MiniDecafParser::FuncContext *ctx);
         antlrcpp::Any visitFuncCall(MiniDecafParser::FuncCallContext *ctx);
         antlrcpp::Any visitBlock(MiniDecafParser::BlockContext *ctx);
@@ -54,8 +54,8 @@ class CodeEmission : public MiniDecafBaseVisitor {
         std::ostringstream bss_;
 
         std::string curFunc;
-        symInTab varTable;
-        varTab varID;
+        // symInTab varTable;
+        // varTab varID;
         bool retState;
         int label;
         int blockID, stmtID;

@@ -24,7 +24,7 @@ main:
 	#pop
 	lw t0, (sp)
 	addi sp, sp, 4
-	li t2, 8
+	li t2, 16
 	mul t1, t1, t2
 	add t0, t0, t1
 	#push
@@ -40,7 +40,7 @@ main:
 	#pop
 	lw t0, (sp)
 	addi sp, sp, 4
-	li t2, 2
+	li t2, 4
 	mul t1, t1, t2
 	add t0, t0, t1
 	#push
@@ -64,7 +64,7 @@ main:
 	#pop
 	lw a0, (sp)
 	addi sp, sp, 4
-	beqz a0, .L0
+	beqz a0, label_0
 	#return
 	li a0, 1
 	#push
@@ -74,10 +74,10 @@ main:
 	lw a0, (sp)
 	addi sp, sp, 4
 	addi sp, fp, 4
-	lw ra, 0(sp)
+	lw ra, (sp)
 	lw fp, -4(sp)
 	ret
-.L0:
+label_0:
 	la a0, a
 	#push
 	addi sp, sp, -4
@@ -96,7 +96,7 @@ main:
 	#pop
 	lw t0, (sp)
 	addi sp, sp, 4
-	li t2, 8
+	li t2, 16
 	mul t1, t1, t2
 	add t0, t0, t1
 	#push
@@ -114,7 +114,7 @@ main:
 	#pop
 	lw a0, (sp)
 	addi sp, sp, 4
-	beqz a0, .L1
+	beqz a0, label_1
 	#return
 	li a0, 2
 	#push
@@ -124,10 +124,10 @@ main:
 	lw a0, (sp)
 	addi sp, sp, 4
 	addi sp, fp, 4
-	lw ra, 0(sp)
+	lw ra, (sp)
 	lw fp, -4(sp)
 	ret
-.L1:
+label_1:
 	la a0, a
 	#push
 	addi sp, sp, -4
@@ -142,7 +142,7 @@ main:
 	#pop
 	lw t0, (sp)
 	addi sp, sp, 4
-	li t2, 8
+	li t2, 16
 	mul t1, t1, t2
 	add t0, t0, t1
 	#push
@@ -158,7 +158,7 @@ main:
 	#pop
 	lw t0, (sp)
 	addi sp, sp, 4
-	li t2, 2
+	li t2, 4
 	mul t1, t1, t2
 	add t0, t0, t1
 	#push
@@ -184,7 +184,7 @@ main:
 	#pop
 	lw t0, (sp)
 	addi sp, sp, 4
-	li t2, 8
+	li t2, 16
 	mul t1, t1, t2
 	add t0, t0, t1
 	#push
@@ -202,7 +202,7 @@ main:
 	#pop
 	lw a0, (sp)
 	addi sp, sp, 4
-	beqz a0, .L2
+	beqz a0, label_2
 	#return
 	li a0, 3
 	#push
@@ -212,10 +212,10 @@ main:
 	lw a0, (sp)
 	addi sp, sp, 4
 	addi sp, fp, 4
-	lw ra, 0(sp)
+	lw ra, (sp)
 	lw fp, -4(sp)
 	ret
-.L2:
+label_2:
 	la a0, a
 	#push
 	addi sp, sp, -4
@@ -230,7 +230,7 @@ main:
 	#pop
 	lw t0, (sp)
 	addi sp, sp, 4
-	li t2, 8
+	li t2, 16
 	mul t1, t1, t2
 	add t0, t0, t1
 	#push
@@ -246,7 +246,7 @@ main:
 	#pop
 	lw t0, (sp)
 	addi sp, sp, 4
-	li t2, 2
+	li t2, 4
 	mul t1, t1, t2
 	add t0, t0, t1
 	#push
@@ -319,7 +319,7 @@ main:
 	#pop
 	lw a0, (sp)
 	addi sp, sp, 4
-	beqz a0, .L3
+	beqz a0, label_3
 	#return
 	li a0, 4
 	#push
@@ -329,10 +329,10 @@ main:
 	lw a0, (sp)
 	addi sp, sp, 4
 	addi sp, fp, 4
-	lw ra, 0(sp)
+	lw ra, (sp)
 	lw fp, -4(sp)
 	ret
-.L3:
+label_3:
 	la a0, a
 	#push
 	addi sp, sp, -4
@@ -347,7 +347,7 @@ main:
 	#pop
 	lw t0, (sp)
 	addi sp, sp, 4
-	li t2, 8
+	li t2, 16
 	mul t1, t1, t2
 	add t0, t0, t1
 	#push
@@ -363,7 +363,7 @@ main:
 	#pop
 	lw t0, (sp)
 	addi sp, sp, 4
-	li t2, 2
+	li t2, 4
 	mul t1, t1, t2
 	add t0, t0, t1
 	#push
@@ -428,7 +428,7 @@ main:
 	#pop
 	lw a0, (sp)
 	addi sp, sp, 4
-	beqz a0, .L4
+	beqz a0, label_4
 	#return
 	li a0, 5
 	#push
@@ -438,10 +438,10 @@ main:
 	lw a0, (sp)
 	addi sp, sp, 4
 	addi sp, fp, 4
-	lw ra, 0(sp)
+	lw ra, (sp)
 	lw fp, -4(sp)
 	ret
-.L4:
+label_4:
 	#return
 	li a0, 0
 	#push
@@ -451,12 +451,11 @@ main:
 	lw a0, (sp)
 	addi sp, sp, 4
 	addi sp, fp, 4
-	lw ra, 0(sp)
+	lw ra, (sp)
 	lw fp, -4(sp)
 	ret
 .section .data
 .section .bss
-.globl a
+.global a
 a:
 	.space 64
-

@@ -35,8 +35,8 @@ int main(int argc, const char* argv[]) {
     StackAlloc alloc;
     CodeEmission codeEmission;
     // std::cout << "ttt" << std::endl;
-    varTab varID1;
-    varTab varID2;
+    // varTab varID1;
+    // varTab varID2;
     
     alloc.visitProg(treeNode);
     // std::cout << "ddd" << std::endl;
